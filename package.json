@@ -7,12 +7,14 @@
   },
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "local": "npx nodemon index.js"
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.10.21",
     "ejs": "^3.1.5",
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "nodemon": "^3.0.3"
   },
   "keywords": [
     "node",
