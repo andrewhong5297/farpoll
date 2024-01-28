@@ -10,6 +10,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/base', (req, res) => {
+  console.log('api endpoint: ' + process.env['HOST'] + '/submit')
   res.setHeader('Content-Type', 'text/html');
   res.status(200).send(`
     <!DOCTYPE html>
@@ -20,7 +21,7 @@ app.get('/base', (req, res) => {
         <meta property="og:image" content="https://docs.attest.sh/img/eas-logo.png">
         <meta name="fc:frame" content="vNext">
         <meta name="fc:frame:image" content="https://docs.attest.sh/img/eas-logo.png">
-        <meta name="fc:frame:post_url" content="https://frame-eas-a34243560586.herokuapp.com/submit">
+        <meta name="fc:frame:post_url" content="${process.env['HOST']}/submit">
         <meta name="fc:frame:button:1" content="I attest I saw this cast">
       </head>
       <body>
