@@ -44,24 +44,23 @@ app.post('/submit', async (req, res) => {
     res.status(500).send(`Failed to validate message: ${e}`);
   }
 
-  // // Return an HTML response
-  // res.setHeader('Content-Type', 'text/html');
-  // res.status(200).send(`
-  //       <!DOCTYPE html>
-  //       <html>
-  //         <head>
-  //           <title>EAS Submitted!</title>
-  //           <meta property="og:title" content="EAS Submitted">
-  //           <meta property="og:image" content="https://docs.attest.sh/img/eas-logo.png">
-  //           <meta name="fc:frame" content="vNext">
-  //           <meta name="fc:frame:image" content="https://docs.attest.sh/img/eas-logo.png">
-  //           <meta name="fc:frame:button:1" content="Succesfully attested on Base">
-  //         </head>
-  //         <body>
-  //           <p>Attestation submitted: transaction hash</p>
-  //         </body>
-  //       </html>
-  //     `);
+  // Return an HTML response
+  res.setHeader('Content-Type', 'text/html');
+  res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>EAS Submitted!</title>
+            <meta property="og:title" content="EAS Submitted">
+            <meta property="og:image" content="https://docs.attest.sh/img/eas-logo.png">
+            <meta name="fc:frame" content="vNext">
+            <meta name="fc:frame:image" content="https://docs.attest.sh/img/eas-logo.png">
+            <meta name="fc:frame:button:1" content="Succesfully attested on Base">
+          </head>
+          <body>
+            <p>Attestation submitted: transaction hash</p>
+          </body>
+        </html>`);
 });
 
 app.listen(process.env.PORT || 5001, () => {
