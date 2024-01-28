@@ -31,17 +31,18 @@ app.get('/base', (req, res) => {
 });
 
 app.post('/submit', async (req, res) => {
-  console.log(req.body)
-  // const frameMessage = Message.decode(Buffer.from(req.body?.trustedData?.messageBytes || '', 'hex'));
-  // const result = await client.validateMessage(frameMessage);
-  // if (result.isOk() && result.value.valid) {
-  //   const validatedMessage = result.value.message;
-  //   console.log(validatedMessage)
-  // }
-  // else {
-  //   console.log(`Failed to validate message: ${result.error}`);
-  //   res.status(500).send(`Failed to validate message: ${e}`);
-  // }
+  console.log(req.body.trustedData)
+  console.log(req.body.untrustedData)
+  const frameMessage = Message.decode(Buffer.from(req.body?.trustedData?.messageBytes || '', 'hex'));
+  const result = await client.validateMessage(frameMessage);
+  if (result.isOk() && result.value.valid) {
+    const validatedMessage = result.value.message;
+    console.log(validatedMessage)
+  }
+  else {
+    console.log(`Failed to validate message: ${result.error}`);
+    res.status(500).send(`Failed to validate message: ${e}`);
+  }
 
   // // Return an HTML response
   // res.setHeader('Content-Type', 'text/html');
