@@ -1,7 +1,6 @@
 // import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
 const express = require('express');
 const app = express();
-const port = 5001;
 
 // const HUB_URL = process.env['HUB_URL'] || "nemes.farcaster.xyz:2283";
 // const client = getSSLHubRpcClient(HUB_URL);
@@ -61,6 +60,6 @@ app.get('/base', (req, res) => {
 //       `);
 // });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+app.listen(process.env.PORT || 5000, () => {
+  console.log(`app listening on port ${process.env.PORT || 5000}`);
+});
