@@ -6,7 +6,7 @@ const HUB_URL = process.env['HUB_URL'] || "nemes.farcaster.xyz:2283";
 const client = getSSLHubRpcClient(HUB_URL);
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.send('Hello World 2!')
 });
 
 app.get('/base', (req, res) => {
@@ -20,7 +20,7 @@ app.get('/base', (req, res) => {
         <meta property="og:image" content="https://docs.attest.sh/img/eas-logo.png">
         <meta name="fc:frame" content="vNext">
         <meta name="fc:frame:image" content="https://docs.attest.sh/img/eas-logo.png">
-        <meta name="fc:frame:post_url" content="https://frame-eas-a34243560586.herokuapp.com/submit">
+        <meta name="fc:frame:post_url" content="https://3bb7-208-64-27-150.ngrok-free.app/submit">
         <meta name="fc:frame:button:1" content="I attest I saw this cast">
       </head>
       <body>
@@ -39,7 +39,8 @@ app.post('/submit', async (req, res) => {
   }
   else {
     console.log(`Failed to validate message: ${result.error}`);
-    res.status(500).send(`Failed to validate message: ${e}`);
+    res.status(500).send(`Failed to validate message: ${result.error}`);
+    return;
   }
 
   // Return an HTML response
