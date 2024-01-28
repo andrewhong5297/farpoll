@@ -54,7 +54,7 @@ app.post('/submit', async (req, res) => {
       .catch(err => console.error(err));
 
     // console.log(user_data)
-    const attest_wallet = user_data.users[0].verifications[0]; //attest to the first connected verification wallet
+    const attest_wallet = user_data.users[0].verifications[0] ?? user_data.users[0].custody_address //attest to the first connected verification wallet
     console.log(attest_wallet)
     console.log(fid);
     console.log('0x' + cast_hash);
