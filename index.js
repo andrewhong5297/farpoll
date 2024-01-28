@@ -20,7 +20,7 @@ app.get('/base', (req, res) => {
         <meta property="og:image" content="https://docs.attest.sh/img/eas-logo.png">
         <meta name="fc:frame" content="vNext">
         <meta name="fc:frame:image" content="https://docs.attest.sh/img/eas-logo.png">
-        <meta name="fc:frame:post_url" content="${process.env['HOST']}/api/submit">
+        <meta name="fc:frame:post_url" content="https://frame-eas-a34243560586.herokuapp.com/submit">
         <meta name="fc:frame:button:1" content="I attest I saw this cast">
       </head>
       <body>
