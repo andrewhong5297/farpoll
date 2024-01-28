@@ -31,8 +31,6 @@ app.get('/base', (req, res) => {
 });
 
 app.post('/submit', async (req, res) => {
-  console.log(req.body.trustedData)
-  console.log(req.body.untrustedData)
   const frameMessage = Message.decode(Buffer.from(req.body?.trustedData?.messageBytes || '', 'hex'));
   const result = await client.validateMessage(frameMessage);
   if (result.isOk() && result.value.valid) {
