@@ -1,7 +1,7 @@
 // import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 5001;
 
 // const HUB_URL = process.env['HUB_URL'] || "nemes.farcaster.xyz:2283";
 // const client = getSSLHubRpcClient(HUB_URL);
