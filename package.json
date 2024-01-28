@@ -1,7 +1,7 @@
 {
-  "name": "node-js-getting-started",
-  "version": "0.3.0",
-  "description": "A sample Node.js app using Express 4",
+  "name": "frame-eas",
+  "version": "0.1.0",
+  "description": "A sample frame server using Express, pushes frame actions into onchain attestations",
   "engines": {
     "node": "20.x"
   },

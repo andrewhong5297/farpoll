@@ -10,7 +10,6 @@ app.get('/', (req, res) => {
 });
 
 app.get('/base', (req, res) => {
-  console.log('api endpoint: ' + process.env['HOST'] + '/submit')
   res.setHeader('Content-Type', 'text/html');
   res.status(200).send(`
     <!DOCTYPE html>
