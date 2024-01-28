@@ -23,9 +23,6 @@ app.get('/base', (req, res) => {
         <meta name="fc:frame:post_url" content="${process.env['HOST']}/api/submit">
         <meta name="fc:frame:button:1" content="I attest">
       </head>
-      <body>
-        <p>Submit an attestation to prove on chain you saw this cast</p>
-      </body>
     </html>
   `);
 });
