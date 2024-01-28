@@ -17,7 +17,9 @@ app.get('/base', (req, res) => {
       <head>
         <title>Submit an attestation</title>
         <meta property="og:title" content="Submit an attestation">
+        <meta property="og:image" content="https://docs.attest.sh/img/eas-logo.png">
         <meta name="fc:frame" content="vSubmit">
+        <meta name="fc:frame:image" content="https://docs.attest.sh/img/eas-logo.png">
         <meta name="fc:frame:post_url" content="${process.env['HOST']}/api/submit">
         <meta name="fc:frame:button:1" content="I attest">
       </head>
@@ -51,6 +53,9 @@ app.get('/base', (req, res) => {
 //           <head>
 //             <title>EAS Submitted!</title>
 //             <meta property="og:title" content="EAS Submitted">
+//             <meta property="og:image" content="https://docs.attest.sh/img/eas-logo.png">
+//             <meta name="fc:frame" content="vSubmit">
+//             <meta name="fc:frame:image" content="https://docs.attest.sh/img/eas-logo.png">
 //             <meta name="fc:frame" content="vSubmitted">
 //           </head>
 //           <body>
