@@ -9,7 +9,7 @@ import { create_image } from './helpers/build/poll.js';
 
 const app = express();
 app.use(express.json()); 
-const base_url = process.env.IS_HEROKU ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://67a1-2603-7000-8807-4100-682c-7192-d33e-af81.ngrok-free.app' // 'http://localhost:5001';
+const base_url = process.env["IS_HEROKU"] == 'true' ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://67a1-2603-7000-8807-4100-682c-7192-d33e-af81.ngrok-free.app' // 'http://localhost:5001';
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
@@ -44,12 +44,12 @@ app.get('/base', (req, res) => {
         <meta name="fc:frame" content="vNext">
         <meta name="fc:frame:image" content="${base_url}/image?show_results=false">
         <meta name="fc:frame:post_url" content="${base_url}/submit">
-        <meta name="fc:frame:button:1" content="1 year">
-        <meta name="fc:frame:button:2" content="2 year">
-        <meta name="fc:frame:button:3" content="4 year">
-        <meta name="fc:frame:button:4" content="8 year">
+        <meta name="fc:frame:button:1" content="3.14">
+        <meta name="fc:frame:button:2" content="42">
+        <meta name="fc:frame:button:3" content="69">
+        <meta name="fc:frame:button:4" content="1337">
       </head>
-      <body>
+      <body> 
         <p>Submit your prediction</p>
       </body>
     </html>
@@ -57,31 +57,63 @@ app.get('/base', (req, res) => {
 });
 
 app.post('/submit', async (req, res) => {
-  // console.log(req.body);
-  const HUB_URL = process.env['HUB_URL'] || "nemes.farcaster.xyz:2283";
-  const client = getSSLHubRpcClient(HUB_URL);
-  const frameMessage = Message.decode(Buffer.from(req.body?.trustedData?.messageBytes || '', 'hex'));
-  const result = await client.validateMessage(frameMessage);
-  if (result.isOk() && result.value.valid) {
-    const validatedMessage = result.value.message;
-    console.log(validatedMessage)
+  try {
+    console.log(req.body);
+    const HUB_URL = process.env['HUB_URL'] || "nemes.farcaster.xyz:2283";
+    const client = getSSLHubRpcClient(HUB_URL);
 
-    //get caster data from neynar api
-    const fid = validatedMessage.data.fid;
-    const cast_hash = validatedMessage.data.frameActionBody.castId.hash.toString('hex');
+    let fid = 1
+    let cast_hash = null
+    let button_index = 0
+    let trusted_data = null
+    if (req.body?.trustedData == undefined) { //separating out for local testing with embed developer
+      console.log('local testing')
+      fid = req.body.untrustedData.fid
+      cast_hash = req.body.untrustedData.castId.hash.toString('hex')
+      button_index = req.body.untrustedData.buttonIndex
+      trusted_data = req.body.untrustedData.castId.hash.toString('hex')
 
+      // //test with hardcoded messageBytes from a real cast
+      // trusted_data = '0a77080d10986618dda1a72e20018201680a4868747470733a2f2f363761312d323630332d373030302d383830372d343130302d363832632d373139322d643333652d616638312e6e67726f6b2d667265652e6170702f6261736510041a1a088a8101121460a7676b609a5f646b1c7e3fe1b88af211671ebb1214ac2a1748ee47ef34b7ef22bbe4c65c4d37c1122c1801224077f9fa86fa7142e109263d6ce56842dd124f947b09108dc6d32bc8549c41f88a015d7878baa3801ce515ed929b029d8ebfae4296154621daaf17e0c2958d6306280132203d277929b382d8d3ce32d2a250f532a994baed8e591766b4c97a68893c7e3122'
+      // const frameMessage = Message.decode(Buffer.from(trusted_data || '', 'hex'));
+      // const result = await client.validateMessage(frameMessage);
+      // const validatedMessage = result.value.message;
+      // console.log(validatedMessage);
+      // fid = validatedMessage.data.fid;
+      // cast_hash = validatedMessage.data.frameActionBody.castId.hash.toString('hex');
+      // button_index = validatedMessage.data.frameActionBody.buttonIndex;
+    } else {
+      trusted_data = req.body?.trustedData?.messageBytes
+      const frameMessage = Message.decode(Buffer.from(trusted_data || '', 'hex'));
+      const result = await client.validateMessage(frameMessage);
+
+      if (result.isOk() && result.value.valid) {
+        const validatedMessage = result.value.message;
+        console.log(validatedMessage);
+
+        fid = validatedMessage.data.fid;
+        cast_hash = validatedMessage.data.frameActionBody.castId.hash.toString('hex');
+        button_index = validatedMessage.data.frameActionBody.buttonIndex;
+      } else {
+        console.log(`Failed to validate message: ${result.error}`);
+        res.status(500).send(`Failed to validate message: ${result.error}`);
+        return;
+      }
+    }
+    
     const attest_wallet = await get_user_wallet(fid);
-
-    console.log(attest_wallet)
-    console.log('0x' + cast_hash);
-
+    console.log('attested: ' + attest_wallet)
+    console.log('cast: ' + cast_hash);
+    console.log('button index: ' + button_index)
+    console.log('trusted: ' + trusted_data)
 
     let vote_status = false;
-    const existing_attestation = await eas_check(cast_hash, attest_wallet) //check if the user has already attested
+    const existing_attestation = false
+    // const existing_attestation = await eas_check(cast_hash, attest_wallet) //TODO: check if the user has already attested
     if (existing_attestation) {
       vote_status = true;
     } else {
-      const attested = await eas_mint(cast_hash, fid, attest_wallet); //mint the attestation
+      await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //mint the attestation
     }
 
     // Return an HTML response
@@ -96,17 +128,16 @@ app.post('/submit', async (req, res) => {
             <meta name="fc:frame" content="vNext">
             <meta name="fc:frame:image" content="${base_url}/image?show_results=true">
             <meta name="fc:frame:post_url" content="https://google.com">
-            <meta name="fc:frame:button:1" content="${vote_status ? 'Already voted' : 'Vote submitted as attestation'}">
+            <meta name="fc:frame:button:1" content="${vote_status ? 'Already voted' : 'Vote submitted as an attestation'}">
           </head>
           <body>
             <p>Attestation submitted</p>
           </body>
         </html>`);
   }
-  else {
-    console.log(`Failed to validate message: ${result.error}`);
-    res.status(500).send(`Failed to validate message: ${result.error}`);
-    return;
+  catch (error) {
+    console.error(error);
+    res.status(500).send('Error submitting attestation');
   }
 });
 

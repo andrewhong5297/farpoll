@@ -15,15 +15,15 @@ export async function create_image(show_results=false, cast_hash=null) {
     } else {
         //hardcoded poll options
         pollData = [
-            {text: '1 year', percentOfTotal: 0},
-            {text: '2 years', percentOfTotal: 0},
-            {text: '4 years', percentOfTotal: 0},
-            {text: '8 years', percentOfTotal: 0}
+            {text: '3.14', percentOfTotal: 0},
+            {text: '42', percentOfTotal: 0},
+            {text: '69', percentOfTotal: 0},
+            {text: '1337', percentOfTotal: 0}
         ]
     }
 
     //get cast from neynar, split on first question mark and take from the first part only
-    const title = "How long until we have 1B users onchain every month?"
+    const title = "Pick your favorite number, it shall forever be onchain" //"How long until we have 1B users onchain every month?"
 
     const svg = await satori(
         <div style={{
