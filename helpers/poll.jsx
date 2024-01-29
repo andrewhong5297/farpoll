@@ -47,12 +47,12 @@ export async function create_image(show_results=false, cast_hash=null) {
                     pollData.map((opt, index) => {
                         return (
                             <div style={{
-                                backgroundColor: show_results==true ? '#007bff' : '',
+                                backgroundColor: show_results==='true' ? '#007bff' : '',
                                 color: '#fff',
                                 padding: 10,
                                 marginBottom: 10,
                                 borderRadius: 4,
-                                width: `${show_results==true ? opt.percentOfTotal : 100}%`,
+                                width: `${show_results==='true' ? opt.percentOfTotal : 100}%`,
                                 whiteSpace: 'nowrap',
                                 overflow: 'visible',
                             }}>{opt.text}</div> //opt.text is the option text
