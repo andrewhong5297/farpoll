@@ -1,9 +1,12 @@
 import satori from "satori";
 import sharp from 'sharp';
+import { join } from 'path';
+import * as fs from "fs";
+import React from "react";
 
 //this should take a cast hash, then query Dune to get the poll results as a json array. Then displays them.
-export async function create_image(show_results = false, cast_hash = null) {
-  const fontPath = join(process.cwd(), 'Roboto-Regular.ttf');
+export async function create_image(show_results=false, cast_hash = null) {
+  const fontPath = join(process.cwd(), 'helpers', 'Roboto-Regular.ttf');
   let fontData = fs.readFileSync(fontPath);
   let pollData = [];
   if (cast_hash !== null) {
@@ -15,13 +18,13 @@ export async function create_image(show_results = false, cast_hash = null) {
       text: '1 year',
       percentOfTotal: 0
     }, {
-      text: '2 year',
+      text: '2 years',
       percentOfTotal: 0
     }, {
-      text: '4 year',
+      text: '4 years',
       percentOfTotal: 0
     }, {
-      text: '8 year',
+      text: '8 years',
       percentOfTotal: 0
     }];
   }
@@ -54,12 +57,12 @@ export async function create_image(show_results = false, cast_hash = null) {
   }, title), pollData.map((opt, index) => {
     return /*#__PURE__*/React.createElement("div", {
       style: {
-        backgroundColor: show_results ? '#007bff' : '',
+        backgroundColor: show_results == true ? '#007bff' : '',
         color: '#fff',
         padding: 10,
         marginBottom: 10,
         borderRadius: 4,
-        width: `${show_results ? opt.percentOfTotal : 100}%`,
+        width: `${show_results == true ? opt.percentOfTotal : 100}%`,
         whiteSpace: 'nowrap',
         overflow: 'visible'
       }

@@ -7,16 +7,27 @@ import { eas_mint, eas_check } from './helpers/eas.js';
 import { get_user_wallet } from './helpers/neynar.js';
 import { create_image } from './helpers/build/poll.js';
 
-app.use(express.json());
 const app = express();
-const base_url = process.env.IS_HEROKU ? 'https://frame-eas-a34243560586.herokuapp.com/' : 'http://localhost:5001';
+app.use(express.json()); 
+const base_url = process.env.IS_HEROKU ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://67a1-2603-7000-8807-4100-682c-7192-d33e-af81.ngrok-free.app' // 'http://localhost:5001';
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
 });
 
+app.get('/user', async (req, res) => {
+  const fid = req.query.fid;
+  console.log(fid)
+  const attest_wallet = await get_user_wallet(fid);
+  res.send(attest_wallet);
+});
+
 app.get('/image', async (req, res) => {
   const showResults = req.query.show_results;
+  console.log("show result: " + showResults)
+  console.log(showResults ? '#007bff' : '')
+  console.log(`${showResults ? 50 : 100}%`)
+
   const pngBuffer = await create_image(showResults);
   res.setHeader('Content-Type', 'image/png');
   res.setHeader('Cache-Control', 'max-age=10');
@@ -31,9 +42,9 @@ app.get('/base', (req, res) => {
       <head>
         <title>Submit an attestation</title>
         <meta property="og:title" content="Submit an attestation">
-        <meta property="og:image" content="${base_url}/image">
+        <meta property="og:image" content="${base_url}/image?show_results=false">
         <meta name="fc:frame" content="vNext">
-        <meta name="fc:frame:image" content="${base_url}/image">
+        <meta name="fc:frame:image" content="${base_url}/image?show_results=false">
         <meta name="fc:frame:post_url" content="${base_url}/submit">
         <meta name="fc:frame:button:1" content="1 year">
         <meta name="fc:frame:button:2" content="2 year">
@@ -83,9 +94,9 @@ app.post('/submit', async (req, res) => {
           <head>
             <title>EAS Submitted!</title>
             <meta property="og:title" content="EAS Submitted">
-            <meta property="og:image" content="${base_url}/image">
+            <meta property="og:image" content="${base_url}/image?show_results=true">
             <meta name="fc:frame" content="vNext">
-            <meta name="fc:frame:image" content="${base_url}/image">
+            <meta name="fc:frame:image" content="${base_url}/image?show_results=true">
             <meta name="fc:frame:post_url" content="https://google.com">
             <meta name="fc:frame:button:1" content="${vote_status ? 'Already voted' : 'Vote submitted as attestation'}">
           </head>
