@@ -66,7 +66,8 @@ export async function create_image(show_results = false, cast_hash=null) {
                 style: 'normal',
                 weight: 400
             }]
-        })
+        }
+        )
 
     // Convert SVG to PNG using Sharp
     const pngBuffer = await sharp(Buffer.from(svg))

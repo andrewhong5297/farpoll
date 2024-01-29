@@ -1,9 +1,11 @@
-require('dotenv').config()
-const { getSSLHubRpcClient, Message } = require("@farcaster/hub-nodejs");
-const express = require('express');
-const { eas_mint, eas_check } = require('./helpers/eas.js');
-const { get_user_wallet } = require('./helpers/neynar.js');
-const { create_image } = require('./helpers/poll.js');
+import dotenv from 'dotenv';
+dotenv.config();
+
+import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
+import express from 'express';
+import { eas_mint, eas_check } from './helpers/eas.js';
+import { get_user_wallet } from './helpers/neynar.js';
+import { create_image } from './helpers/build/poll.js';
 
 app.use(express.json());
 const app = express();

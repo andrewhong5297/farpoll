@@ -1,6 +1,6 @@
 import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
 import { ethers } from "ethers";
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
+import { gql, GraphQLClient } from 'graphql-request';
 
 export async function eas_mint(cast_hash, fid, attest_wallet) {
     try {
@@ -47,10 +47,8 @@ export async function eas_mint(cast_hash, fid, attest_wallet) {
 
 export async function eas_check(cast_hash, attest_wallet) {
     try {
-        const client = new ApolloClient({
-            uri: "YOUR_GRAPHQL_ENDPOINT",
-            cache: new InMemoryCache(),
-        });
+        const endpoint = "YOUR_GRAPHQL_ENDPOINT";
+        const graphQLClient = new GraphQLClient(endpoint);
 
         const query = gql`
             query Attestation {
@@ -69,11 +67,9 @@ export async function eas_check(cast_hash, attest_wallet) {
             }
         `;
 
-        const response = await client.query({
-            query,
-        });
+        const response = await graphQLClient.request(query);
 
-        const attestation = response.data.attestation;
+        const attestation = response.attestation;
         console.log(attestation);
 
         //if attestation is not null, return true. else return false
