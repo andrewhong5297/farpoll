@@ -1,17 +1,24 @@
 require('dotenv').config()
 const { getSSLHubRpcClient, Message } = require("@farcaster/hub-nodejs");
-const { EAS, SchemaEncoder } = require("@ethereum-attestation-service/eas-sdk");
-const { ethers } = require("ethers");
 const express = require('express');
-const sdk = require('api')('@neynar/v2.0#r1pf443blrx2cym4');
+const { eas_mint, eas_check } = require('./helpers/eas.js');
+const { get_user_wallet } = require('./helpers/neynar.js');
+const { create_image } = require('./helpers/poll.js');
 
-const app = express();
-const HUB_URL = process.env['HUB_URL'] || "nemes.farcaster.xyz:2283";
-const client = getSSLHubRpcClient(HUB_URL);
 app.use(express.json());
+const app = express();
+const base_url = process.env.IS_HEROKU ? 'https://frame-eas-a34243560586.herokuapp.com/' : 'http://localhost:5001';
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
+});
+
+app.get('/image', async (req, res) => {
+  const showResults = req.query.show_results;
+  const pngBuffer = await create_image(showResults);
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Cache-Control', 'max-age=10');
+  res.send(pngBuffer);
 });
 
 app.get('/base', (req, res) => {
@@ -22,14 +29,17 @@ app.get('/base', (req, res) => {
       <head>
         <title>Submit an attestation</title>
         <meta property="og:title" content="Submit an attestation">
-        <meta property="og:image" content="https://docs.attest.sh/img/eas-logo.png">
+        <meta property="og:image" content="${base_url}/image">
         <meta name="fc:frame" content="vNext">
-        <meta name="fc:frame:image" content="https://docs.attest.sh/img/eas-logo.png">
-        <meta name="fc:frame:post_url" content="https://frame-eas-a34243560586.herokuapp.com/submit">
-        <meta name="fc:frame:button:1" content="I attest I saw this cast">
+        <meta name="fc:frame:image" content="${base_url}/image">
+        <meta name="fc:frame:post_url" content="${base_url}/submit">
+        <meta name="fc:frame:button:1" content="1 year">
+        <meta name="fc:frame:button:2" content="2 year">
+        <meta name="fc:frame:button:3" content="4 year">
+        <meta name="fc:frame:button:4" content="8 year">
       </head>
       <body>
-        <p>Submit an attestation to prove on chain you saw this cast</p>
+        <p>Submit your prediction</p>
       </body>
     </html>
   `);
@@ -37,6 +47,8 @@ app.get('/base', (req, res) => {
 
 app.post('/submit', async (req, res) => {
   // console.log(req.body);
+  const HUB_URL = process.env['HUB_URL'] || "nemes.farcaster.xyz:2283";
+  const client = getSSLHubRpcClient(HUB_URL);
   const frameMessage = Message.decode(Buffer.from(req.body?.trustedData?.messageBytes || '', 'hex'));
   const result = await client.validateMessage(frameMessage);
   if (result.isOk() && result.value.valid) {
@@ -47,51 +59,19 @@ app.post('/submit', async (req, res) => {
     const fid = validatedMessage.data.fid;
     const cast_hash = validatedMessage.data.frameActionBody.castId.hash.toString('hex');
 
-    const NEYNAR_API_KEY = process.env['NEYNAR_API_KEY'];
-    
-    const user_data = await sdk.userBulk({fids: fid, api_key: NEYNAR_API_KEY})
-      .then(({ data }) => data)
-      .catch(err => console.error(err));
+    const attest_wallet = await get_user_wallet(fid);
 
-    // console.log(user_data)
-    const attest_wallet = user_data.users[0].verifications[0] ?? user_data.users[0].custody_address //attest to the first connected verification wallet
     console.log(attest_wallet)
-    console.log(fid);
     console.log('0x' + cast_hash);
 
-    //push to EAS either onchain or offchain. docs: https://docs.attest.sh/docs/tutorials/make-an-attestation
-    const provider = ethers.getDefaultProvider(
-      "base", {
-        alchemy: process.env['ALCHEMY_KEY']
-      }
-    );
-   
-    const signer = new ethers.Wallet(process.env['PRIVATE_KEY'], provider);
 
-    const eas = new EAS("0x4200000000000000000000000000000000000021"); //https://docs.attest.sh/docs/quick--start/contracts#base
-    eas.connect(signer);
-
-    // Initialize SchemaEncoder with the schema string
-    const schemaEncoder = new SchemaEncoder("bytes cast_hash, uint112 fid");
-    const encodedData = schemaEncoder.encodeData([
-      { name: "cast_hash", value: Buffer.from(cast_hash, 'hex'), type: "bytes" },
-      { name: "fid", value: fid, type: "uint112" }
-    ]);
-
-    const schemaUID = "0x9008c7f681e3035347c65d01a7bb3383a85e9d121f5a797e59077cfea964b87c";
-
-    const tx = await eas.attest({
-      schema: schemaUID,
-      data: {
-        recipient: attest_wallet,
-        expirationTime: 0,
-        revocable: true, // Be aware that if your schema is not revocable, this MUST be false
-        data: encodedData,
-      },
-    });
-
-    const newAttestationUID = await tx.wait();
-    console.log("New attestation UID:", newAttestationUID);
+    let vote_status = false;
+    const existing_attestation = await eas_check(cast_hash, attest_wallet) //check if the user has already attested
+    if (existing_attestation) {
+      vote_status = true;
+    } else {
+      const attested = await eas_mint(cast_hash, fid, attest_wallet); //mint the attestation
+    }
 
     // Return an HTML response
     res.setHeader('Content-Type', 'text/html');
@@ -101,11 +81,11 @@ app.post('/submit', async (req, res) => {
           <head>
             <title>EAS Submitted!</title>
             <meta property="og:title" content="EAS Submitted">
-            <meta property="og:image" content="https://docs.attest.sh/img/eas-logo.png">
+            <meta property="og:image" content="${base_url}/image">
             <meta name="fc:frame" content="vNext">
-            <meta name="fc:frame:image" content="https://docs.attest.sh/img/eas-logo.png">
+            <meta name="fc:frame:image" content="${base_url}/image">
             <meta name="fc:frame:post_url" content="https://google.com">
-            <meta name="fc:frame:button:1" content="Succesfully attested on Base">
+            <meta name="fc:frame:button:1" content="${vote_status ? 'Already voted' : 'Vote submitted as attestation'}">
           </head>
           <body>
             <p>Attestation submitted</p>
