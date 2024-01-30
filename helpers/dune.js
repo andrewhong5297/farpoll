@@ -12,7 +12,7 @@ import fetch from 'node-fetch';
 //     {text: '69', percentOfTotal: 0, votes: 0},
 //     {text: '1337', percentOfTotal: 0, votes: 0}
 // ]
-// const cast_hash = "0xdf95758ae0435328978871bf9960a5a8aba3010d"
+// const cast_hash = "0xa1d4242ae1c324f533c16c2636ca772c7caf9aed"
 // //QA only
 
 const DUNE_API_KEY = process.env["DUNE_API_KEY"];
@@ -54,16 +54,15 @@ export async function get_poll_data(cast_hash, poll_data) {
     }
 
     // Iterate through poll_data and replace percentOfTotal values with the same index from results
-    if (results.length == 0) {
+    if (results == null) {
         console.log("No results for this cast hash");
-        return poll_data;
     } else {
         for (let i = 0; i < poll_data.length; i++) {
             poll_data[i].percentOfTotal = JSON.parse(results[i]).percentOfTotal;
             poll_data[i].votes = JSON.parse(results[i]).votes;
         }
     }
-    // console.log(poll_data)
+    console.log(poll_data)
     return poll_data
 }
 
