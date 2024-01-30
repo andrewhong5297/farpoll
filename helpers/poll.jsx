@@ -1,3 +1,4 @@
+// run "npm run build" to compile this file to helpers/poll.js
 import satori from "satori";
 import sharp from 'sharp';
 import { join } from 'path';
