@@ -1,4 +1,4 @@
-# EAS Frame attestations
+# Farcaster Frames with EAS attestations and Dune queries
 
 Frame actions are not captured in the hub right now, so I wanted to enable ethereum "log" like behavior for frames that need them.
 
