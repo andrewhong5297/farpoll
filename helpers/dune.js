@@ -54,9 +54,14 @@ export async function get_poll_data(cast_hash, poll_data) {
     }
 
     // Iterate through poll_data and replace percentOfTotal values with the same index from results
-    for (let i = 0; i < poll_data.length; i++) {
-        poll_data[i].percentOfTotal = JSON.parse(results[i]).percentOfTotal;
-        poll_data[i].votes = JSON.parse(results[i]).votes;
+    if (results.length == 0) {
+        console.log("No results for this cast hash");
+        return poll_data;
+    } else {
+        for (let i = 0; i < poll_data.length; i++) {
+            poll_data[i].percentOfTotal = JSON.parse(results[i]).percentOfTotal;
+            poll_data[i].votes = JSON.parse(results[i]).votes;
+        }
     }
     // console.log(poll_data)
     return poll_data
