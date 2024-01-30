@@ -13,19 +13,19 @@ export async function create_image(show_results = false, cast_hash = "0xdf95758a
   const fontPath = join(process.cwd(), 'helpers', 'Roboto-Regular.ttf');
   let fontData = fs.readFileSync(fontPath);
   let pollData = [{
-    text: '3.14',
+    text: '1 year',
     percentOfTotal: 0,
     votes: 0
   }, {
-    text: '42',
+    text: '2 years',
     percentOfTotal: 0,
     votes: 0
   }, {
-    text: '69',
+    text: '3 years',
     percentOfTotal: 0,
     votes: 0
   }, {
-    text: '1337',
+    text: '4 years',
     percentOfTotal: 0,
     votes: 0
   }];
@@ -35,8 +35,7 @@ export async function create_image(show_results = false, cast_hash = "0xdf95758a
   }
 
   //get cast from neynar, split on first question mark and take from the first part only
-  const title = "Pick your favorite number, it shall forever be onchain"; //"How long until we have 1B users onchain every month?"
-
+  const title = "How long until we have 1B users onchain every month?";
   const svg = await satori( /*#__PURE__*/React.createElement("div", {
     style: {
       justifyContent: 'flex-start',

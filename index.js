@@ -39,10 +39,10 @@ app.get('/base', (req, res) => {
         <meta name="fc:frame" content="vNext">
         <meta name="fc:frame:image" content="${base_url}/image?show_results=false">
         <meta name="fc:frame:post_url" content="${base_url}/submit">
-        <meta name="fc:frame:button:1" content="3.14">
-        <meta name="fc:frame:button:2" content="42">
-        <meta name="fc:frame:button:3" content="69">
-        <meta name="fc:frame:button:4" content="1337">
+        <meta name="fc:frame:button:1" content="1 year">
+        <meta name="fc:frame:button:2" content="2 years">
+        <meta name="fc:frame:button:3" content="3 years">
+        <meta name="fc:frame:button:4" content="4 years">
       </head>
       <body> 
         <p>Submit your prediction</p>
