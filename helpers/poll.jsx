@@ -7,7 +7,7 @@ import React from "react";
 import { get_poll_data } from "./dune.js"
 
 //this should take a cast hash, then query Dune to get the poll results as a json array. Then displays them.
-export async function create_image(show_results=false, cast_hash="0xdf95758ae0435328978871bf9960a5a8aba3010d") {
+export async function create_image(show_results=false, cast_hash="0xa1d4242ae1c324f533c16c2636ca772c7caf9aed") {
     //hardcoding cast hash for now, a bit unfortunate.
 
     const fontPath = join(process.cwd(), 'helpers', 'Roboto-Regular.ttf')
@@ -19,8 +19,8 @@ export async function create_image(show_results=false, cast_hash="0xdf95758ae043
         {text: '4 years', percentOfTotal: 0, votes: 0}
     ]
     if (cast_hash !== null) {
-        // pollData = await get_poll_data(cast_hash, pollData)
-        // console.log(pollData)
+        pollData = await get_poll_data(cast_hash, pollData)
+        console.log(pollData)
     }
 
     //get cast from neynar, split on first question mark and take from the first part only
