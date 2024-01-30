@@ -5,25 +5,45 @@
   "engines": {
     "node": "20.x"
   },
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "local": "npx nodemon index.js"
+    "dev": "npx nodemon index.js",
+    "build": "npx babel helpers/poll.jsx -d helpers"
   },
   "dependencies": {
+    "@cowprotocol/ts-dune-client": "^0.0.2",
     "@ethereum-attestation-service/eas-sdk": "^1.4.0",
     "@farcaster/hub-nodejs": "^0.10.21",
-    "api": "^6.1.1",
+    "@neynar/nodejs-sdk": "^1.8.0",
     "dotenv": "^16.4.1",
     "ejs": "^3.1.5",
     "ethers": "^6.10.0",
     "express": "^4.15.2",
-    "nodemon": "^3.0.3"
+    "graphql": "^16.8.1",
+    "graphql-request": "^6.1.0",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.0.3",
+    "react": "^18.2.0",
+    "satori": "^0.10.11",
+    "sharp": "^0.33.2",
+    "viem": "^2.6.0"
   },
   "keywords": [
     "node",
     "heroku",
     "express"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "babel": {
+    "presets": [
+      "@babel/preset-react"
+    ]
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.9",
+    "@babel/core": "^7.23.9",
+    "@babel/preset-react": "^7.23.3"
+  }
 }
