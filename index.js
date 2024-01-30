@@ -9,7 +9,7 @@ import { create_image } from './helpers/poll.js';
 
 const app = express();
 app.use(express.json()); 
-const base_url = process.env["IS_HEROKU"] == 'true' ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://cf70-67-244-102-135.ngrok-free.app/';
+const base_url = process.env["IS_HEROKU"] == 'true' ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://cf70-67-244-102-135.ngrok-free.app';
 console.log(base_url)
 
 app.get('/', (req, res) => {
@@ -58,12 +58,14 @@ app.post('/submit', async (req, res) => {
 
     let fid = 1
     let cast_hash = null
+    let cast_hash_string = null
     let button_index = 0
     let trusted_data = null
     if (req.body?.trustedData == undefined) { //separating out for local testing with embed developer
       console.log('local testing')
       fid = req.body.untrustedData.fid
       cast_hash = req.body.untrustedData.castId.hash.toString('hex')
+      cast_hash_string = cast_hash
       button_index = req.body.untrustedData.buttonIndex
       trusted_data = req.body.untrustedData.castId.hash.toString('hex')
 
@@ -84,7 +86,8 @@ app.post('/submit', async (req, res) => {
       if (result.isOk() && result.value.valid) {
         const validatedMessage = result.value.message;
         fid = validatedMessage.data.fid;
-        cast_hash = '0x' + validatedMessage.data.frameActionBody.castId.hash.toString('hex');
+        cast_hash = validatedMessage.data.frameActionBody.castId.hash.toString('hex');
+        cast_hash_string = '0x' + cast_hash
         button_index = validatedMessage.data.frameActionBody.buttonIndex;
       } else {
         console.log(`Failed to validate message: ${result.error}`);
@@ -116,9 +119,9 @@ app.post('/submit', async (req, res) => {
           <head>
             <title>EAS Submitted!</title>
             <meta property="og:title" content="EAS Submitted">
-            <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+            <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash_string}">
             <meta name="fc:frame" content="vNext">
-            <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+            <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash_string}">
             <meta name="fc:frame:post_url" content="https://google.com">
             <meta name="fc:frame:button:1" content="${vote_status ? 'Already voted' : 'Vote submitted as an attestation'}">
           </head>
@@ -135,9 +138,9 @@ app.post('/submit', async (req, res) => {
       <head>
         <title>Submit an attestation</title>
         <meta property="og:title" content="Submit an attestation">
-        <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+        <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash_string}">
         <meta name="fc:frame" content="vNext">
-        <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+        <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash_string}">
         <meta name="fc:frame:post_url" content="https://google.com">
         <meta name="fc:frame:button:1" content="Failed to vote, refresh and try again">
       </head>

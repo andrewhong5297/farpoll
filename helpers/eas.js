@@ -45,10 +45,6 @@ export async function eas_check(cast_hash, attest_wallet) {
     const schema_id = '0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde' //https://base.easscan.org/schema/view/0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde
     const attesting = '0xE0fd3Db98D494597b7577377D5b08aB8e0875C2b'
     const checksummed_wallet = getAddress(attest_wallet); //viem
-   
-    // console.log('graphql check...')
-    // console.log(attest_wallet)
-    // console.log(checksummed_wallet)
     
     const endpoint = "https://base.easscan.org/graphql";
     const graphQLClient = new GraphQLClient(endpoint);
