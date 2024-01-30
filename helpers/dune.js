@@ -18,8 +18,8 @@ import fetch from 'node-fetch';
 const DUNE_API_KEY = process.env["DUNE_API_KEY"];
 
 export async function get_poll_data(cast_hash, poll_data) {
-    // try latest, and then refresh if latest doesn't work. TODO: add latest results endpoint to sdk
-    // eas dune query: https://dune.com/queries/3389839
+    try latest, and then refresh if latest doesn't work. TODO: add latest results endpoint to sdk
+    eas dune query: https://dune.com/queries/3389839
     let results = null
     try{
         const meta = {
@@ -39,7 +39,7 @@ export async function get_poll_data(cast_hash, poll_data) {
         if (executionEndedAt < fiveMinutesAgo) {
             throw new Error("Execution ended more than five minutes ago.");
         } else {
-            results = JSON.parse(body).result.rows[0].results;
+            results = JSON.parse(body)?.result?.rows[0].results;
         }
     } catch (error) {
         console.log(error)
@@ -50,14 +50,14 @@ export async function get_poll_data(cast_hash, poll_data) {
         ];
 
         const response = await client.refresh(queryID, parameters)
-        results = response.result?.rows[0].results
+        results = response?.result?.rows[0].results
     }
 
     // Iterate through poll_data and replace percentOfTotal values with the same index from results
     if (results == null) {
         console.log("No results for this cast hash");
     } else {
-        for (let i = 0; i < poll_data.length; i++) {
+        for (let i = 0; i < results.length; i++) {
             poll_data[i].percentOfTotal = JSON.parse(results[i]).percentOfTotal;
             poll_data[i].votes = JSON.parse(results[i]).votes;
         }
