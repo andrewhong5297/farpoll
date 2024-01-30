@@ -7,7 +7,7 @@ import React from "react";
 import { get_poll_data } from "./dune.js";
 
 //this should take a cast hash, then query Dune to get the poll results as a json array. Then displays them.
-export async function create_image(show_results = false, cast_hash = "0xa1d4242ae1c324f533c16c2636ca772c7caf9aed") {
+export async function create_image(show_results = false, cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3") {
   //hardcoding cast hash for now, a bit unfortunate.
 
   const fontPath = join(process.cwd(), 'helpers', 'Roboto-Regular.ttf');
