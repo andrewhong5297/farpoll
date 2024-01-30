@@ -15,8 +15,8 @@ export async function create_image(show_results=false, cast_hash="0xa1d4242ae1c3
     let pollData = [
         {text: '1 year', percentOfTotal: 0, votes: 0},
         {text: '2 years', percentOfTotal: 0, votes: 0},
-        {text: '3 years', percentOfTotal: 0, votes: 0},
-        {text: '4 years', percentOfTotal: 0, votes: 0}
+        {text: '4 years', percentOfTotal: 0, votes: 0},
+        {text: '8 years', percentOfTotal: 0, votes: 0}
     ]
     if (cast_hash !== null) {
         pollData = await get_poll_data(cast_hash, pollData)

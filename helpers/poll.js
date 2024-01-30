@@ -21,11 +21,11 @@ export async function create_image(show_results = false, cast_hash = "0xa1d4242a
     percentOfTotal: 0,
     votes: 0
   }, {
-    text: '3 years',
+    text: '4 years',
     percentOfTotal: 0,
     votes: 0
   }, {
-    text: '4 years',
+    text: '8 years',
     percentOfTotal: 0,
     votes: 0
   }];
