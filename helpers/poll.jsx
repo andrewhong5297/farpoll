@@ -19,8 +19,8 @@ export async function create_image(show_results=false, cast_hash="0xdf95758ae043
         {text: '4 years', percentOfTotal: 0, votes: 0}
     ]
     if (cast_hash !== null) {
-        pollData = await get_poll_data(cast_hash, pollData)
-        console.log(pollData)
+        // pollData = await get_poll_data(cast_hash, pollData)
+        // console.log(pollData)
     }
 
     //get cast from neynar, split on first question mark and take from the first part only
