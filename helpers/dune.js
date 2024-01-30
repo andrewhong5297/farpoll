@@ -19,6 +19,7 @@ const DUNE_API_KEY = process.env["DUNE_API_KEY"];
 
 export async function get_poll_data(cast_hash, poll_data) {
     // try latest, and then refresh if latest doesn't work. TODO: add latest results endpoint to sdk
+    // eas dune query: https://dune.com/queries/3389839
     let results = null
     try{
         const meta = {
