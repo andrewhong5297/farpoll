@@ -24,7 +24,7 @@ app.get('/user', async (req, res) => {
 
 app.get('/image', async (req, res) => {
   const showResults = req.query.show_results;
-  console.log(`show result: " + ${showResults === 'true' ? 'show' : 'hide'}`) //i have no idea why the query param isn't parsing to boolean correctly
+  console.log(`show result: ${showResults === 'true' ? 'show' : 'hide'}`) //i have no idea why the query param isn't parsing to boolean correctly
 
   const pngBuffer = await create_image(showResults);
   res.setHeader('Content-Type', 'image/png');

@@ -1,6 +1,7 @@
 import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
 import { ethers } from "ethers";
 import { gql, GraphQLClient } from 'graphql-request';
+// import zlib from 'zlib';
 
 export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data) {
     //push to EAS either onchain or offchain. docs: https://docs.attest.sh/docs/tutorials/make-an-attestation
@@ -8,12 +9,24 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
         "base", {
             alchemy: process.env['ALCHEMY_KEY']
         }
-        );
+    );
     
     const signer = new ethers.Wallet(process.env['PRIVATE_KEY'], provider);
 
     const eas = new EAS("0x4200000000000000000000000000000000000021"); //https://docs.attest.sh/docs/quick--start/contracts#base
     eas.connect(signer);
+
+    // // Compress the trusted_data using zlib
+    // const compressedData = zlib.deflateSync(Buffer.from(trusted_data, 'hex'));
+    // const compressedDataHex = compressedData.toString('hex');
+    // const decompressedData = zlib.inflateSync(Buffer.from(compressedDataHex, 'hex'));
+    // const decompressedDataHex = decompressedData.toString('hex');
+
+    // console.log("compression testing...")
+    // console.log("trusted: " + trusted_data)
+    // console.log("compressed: " + compressedDataHex)
+    // console.log("trusted again: " + decompressedDataHex)
+    // console.log("done testing")
 
     // Initialize SchemaEncoder with the schema string
     const schemaEncoder = new SchemaEncoder("bytes cast_hash, uint112 fid, uint8 button_index, bytes trusted_data");
@@ -21,7 +34,7 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
         { name: "cast_hash", value: Buffer.from(cast_hash, 'hex'), type: "bytes" },
         { name: "fid", value: fid, type: "uint112" },
         { name: "button_index", value: button_index, type: "uint8" },
-        { name: "trusted_data", value: Buffer.from(trusted_data, 'hex'), type: "bytes" }
+        { name: "trusted_data", value: Buffer.from(decompressedDataHex, 'hex'), type: "bytes" }
     ]);
 
     const schemaUID = "0xd3bfd90a9eb4c81ee18c376f5f35432e6af9ab17853ff0a077d515dc74cf062e";
@@ -29,10 +42,10 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
     const tx = await eas.attest({
         schema: schemaUID,
         data: {
-        recipient: attest_wallet,
-        expirationTime: 0,
-        revocable: true, // Be aware that if your schema is not revocable, this MUST be false
-        data: encodedData,
+            recipient: attest_wallet,
+            expirationTime: 0,
+            revocable: true, // Be aware that if your schema is not revocable, this MUST be false
+            data: encodedData,
         },
     });
 
