@@ -2,7 +2,7 @@
 
 Frame actions are not captured in the hub right now, so I wanted to enable ethereum "log" like behavior for frames that need them.
 
-This frame repo allows you to store actions in the "frameAction" EAS schema either onchain or offchain.
+This frame repo allows you to store button actions in an EAS schema onchain, and then pull that data using Dune to render the poll image.
 
 Useful for:
 - generally storing past frames data for historical access
@@ -17,4 +17,4 @@ For testing, I recommend you localhost into an ngrok and then just test with a l
 
 I'm a javascript noob so ignore all my spaghetti code. Feel free to make PRs with improvements and thoughts.
 
-If you make edits to the poll.jsx file, remember to run `npm run build` to update the js file that gets actually imported.
+If you make edits to the poll.jsx file, remember to run `npm run build` to update the js file that gets actually run.
