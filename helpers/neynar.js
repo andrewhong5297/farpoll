@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import { NeynarAPIClient, isApiErrorResponse } from "@neynar/nodejs-sdk";
+import { NeynarAPIClient } from "@neynar/nodejs-sdk";
 
 export async function get_user_wallet(fid) {
     console.log('get custody wallet from neynar for ' + fid)

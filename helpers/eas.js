@@ -1,7 +1,7 @@
 import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
 import { ethers } from "ethers";
+import { getAddress } from 'viem' //ethers is broken
 import { gql, GraphQLClient } from 'graphql-request';
-// import zlib from 'zlib';
 
 export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data) {
     //push to EAS either onchain or offchain. docs: https://docs.attest.sh/docs/tutorials/make-an-attestation
@@ -10,34 +10,21 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
             alchemy: process.env['ALCHEMY_KEY']
         }
     );
-    
     const signer = new ethers.Wallet(process.env['PRIVATE_KEY'], provider);
-
     const eas = new EAS("0x4200000000000000000000000000000000000021"); //https://docs.attest.sh/docs/quick--start/contracts#base
     eas.connect(signer);
 
-    // // Compress the trusted_data using zlib
-    // const compressedData = zlib.deflateSync(Buffer.from(trusted_data, 'hex'));
-    // const compressedDataHex = compressedData.toString('hex');
-    // const decompressedData = zlib.inflateSync(Buffer.from(compressedDataHex, 'hex'));
-    // const decompressedDataHex = decompressedData.toString('hex');
-
-    // console.log("compression testing...")
-    // console.log("trusted: " + trusted_data)
-    // console.log("compressed: " + compressedDataHex)
-    // console.log("trusted again: " + decompressedDataHex)
-    // console.log("done testing")
-
     // Initialize SchemaEncoder with the schema string
-    const schemaEncoder = new SchemaEncoder("bytes cast_hash, uint112 fid, uint8 button_index, bytes trusted_data");
+    const padded_cast = Buffer.from(cast_hash + '0'.repeat(64 - cast_hash.length), 'hex')
+    const schemaEncoder = new SchemaEncoder("bytes32 cast_hash, uint112 fid, uint8 button_index, bytes trusted_data");
     const encodedData = schemaEncoder.encodeData([
-        { name: "cast_hash", value: Buffer.from(cast_hash, 'hex'), type: "bytes" },
+        { name: "cast_hash", value: padded_cast, type: "bytes32" },
         { name: "fid", value: fid, type: "uint112" },
         { name: "button_index", value: button_index, type: "uint8" },
-        { name: "trusted_data", value: Buffer.from(decompressedDataHex, 'hex'), type: "bytes" }
+        { name: "trusted_data", value: Buffer.from(trusted_data, 'hex'), type: "bytes" }
     ]);
 
-    const schemaUID = "0xd3bfd90a9eb4c81ee18c376f5f35432e6af9ab17853ff0a077d515dc74cf062e";
+    const schemaUID = "0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde";
 
     const tx = await eas.attest({
         schema: schemaUID,
@@ -55,31 +42,48 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
 }
 
 export async function eas_check(cast_hash, attest_wallet) {
-    const endpoint = "YOUR_GRAPHQL_ENDPOINT";
+    const schema_id = '0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde' //https://base.easscan.org/schema/view/0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde
+    const attesting = '0xE0fd3Db98D494597b7577377D5b08aB8e0875C2b'
+    const checksummed_wallet = getAddress(attest_wallet); //viem
+   
+    // console.log('graphql check...')
+    // console.log(attest_wallet)
+    // console.log(checksummed_wallet)
+    
+    const endpoint = "https://base.easscan.org/graphql";
     const graphQLClient = new GraphQLClient(endpoint);
 
     const query = gql`
-        query Attestation {
-            attestation(
-                where: { id: "0xa4fb0ad1e13efbb38e466af0cb59822cae7f9ea26f26dd34ddb09c76ee9dbb12" }
-            ) {
-                id
-                attester
-                recipient
-                refUID
-                revocable
-                revocationTime
-                expirationTime
-                data
+        query Query {
+            findFirstAttestation(where: {
+            schemaId: {
+                equals: "${schema_id}"
+            },
+            recipient: {
+                equals: "${checksummed_wallet}"
+            },
+            attester: {
+                equals: "${attesting}"
+            },
+            decodedDataJson: {
+                contains: "${cast_hash}"
+            }
+            }) {
+            id
+            recipient
+            attester
+            data
+            decodedDataJson
+            time
             }
         }
     `;
 
     const response = await graphQLClient.request(query);
-
-    const attestation = response.attestation;
-    console.log(attestation);
-
-    //if attestation is not null, return true. else return false
-    return attestation;
+    if (response.findFirstAttestation == null) {
+        return false;
+    } else {
+        console.log("already attested: " + response.findFirstAttestation?.id);
+        return true
+    }
 }

@@ -10,9 +10,10 @@
   "scripts": {
     "start": "node index.js",
     "dev": "npx nodemon index.js",
-    "build": "npx babel helpers/poll.jsx -d helpers/build"
+    "build": "npx babel helpers/poll.jsx -d helpers"
   },
   "dependencies": {
+    "@cowprotocol/ts-dune-client": "^0.0.2",
     "@ethereum-attestation-service/eas-sdk": "^1.4.0",
     "@farcaster/hub-nodejs": "^0.10.21",
     "@neynar/nodejs-sdk": "^1.8.0",
@@ -22,10 +23,12 @@
     "express": "^4.15.2",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.0.3",
     "react": "^18.2.0",
     "satori": "^0.10.11",
-    "sharp": "^0.33.2"
+    "sharp": "^0.33.2",
+    "viem": "^2.6.0"
   },
   "keywords": [
     "node",

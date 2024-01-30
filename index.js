@@ -5,7 +5,7 @@ import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
 import express from 'express';
 import { eas_mint, eas_check } from './helpers/eas.js';
 import { get_user_wallet } from './helpers/neynar.js';
-import { create_image } from './helpers/build/poll.js';
+import { create_image } from './helpers/poll.js';
 
 const app = express();
 app.use(express.json()); 
@@ -15,17 +15,11 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 });
 
-app.get('/user', async (req, res) => {
-  const fid = req.query.fid;
-  console.log(fid)
-  const attest_wallet = await get_user_wallet(fid);
-  res.send(attest_wallet);
-});
-
 app.get('/image', async (req, res) => {
   const showResults = req.query.show_results;
   console.log(`show result: ${showResults === 'true' ? 'show' : 'hide'}`) //i have no idea why the query param isn't parsing to boolean correctly
 
+  //TODO: is there some way to pass cast hash in the image get url?
   const pngBuffer = await create_image(showResults);
   res.setHeader('Content-Type', 'image/png');
   res.setHeader('Cache-Control', 'max-age=10');
@@ -89,8 +83,6 @@ app.post('/submit', async (req, res) => {
 
       if (result.isOk() && result.value.valid) {
         const validatedMessage = result.value.message;
-        console.log(validatedMessage);
-
         fid = validatedMessage.data.fid;
         cast_hash = validatedMessage.data.frameActionBody.castId.hash.toString('hex');
         button_index = validatedMessage.data.frameActionBody.buttonIndex;
@@ -107,9 +99,9 @@ app.post('/submit', async (req, res) => {
     console.log('button index: ' + button_index)
     console.log('trusted: ' + trusted_data)
 
+    //check if user has already voted or not
     let vote_status = false;
-    const existing_attestation = false
-    // const existing_attestation = await eas_check(cast_hash, attest_wallet) //TODO: check if the user has already attested
+    const existing_attestation = await eas_check(cast_hash, attest_wallet)
     if (existing_attestation) {
       vote_status = true;
     } else {
@@ -137,7 +129,23 @@ app.post('/submit', async (req, res) => {
   }
   catch (error) {
     console.error(error);
-    res.status(500).send('Error submitting attestation');
+    res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Submit an attestation</title>
+        <meta property="og:title" content="Submit an attestation">
+        <meta property="og:image" content="${base_url}/image?show_results=false">
+        <meta name="fc:frame" content="vNext">
+        <meta name="fc:frame:image" content="${base_url}/image?show_results=false">
+        <meta name="fc:frame:post_url" content="https://google.com">
+        <meta name="fc:frame:button:1" content="Failed to vote, refresh and try again">
+      </head>
+      <body> 
+        <p>Submit your prediction</p>
+      </body>
+    </html>
+  `);
   }
 });
 

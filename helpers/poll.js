@@ -3,30 +3,34 @@ import sharp from 'sharp';
 import { join } from 'path';
 import * as fs from "fs";
 import React from "react";
+import { get_poll_data } from "./dune.js";
 
 //this should take a cast hash, then query Dune to get the poll results as a json array. Then displays them.
-export async function create_image(show_results = false, cast_hash = null) {
+export async function create_image(show_results = false, cast_hash = "0xdf95758ae0435328978871bf9960a5a8aba3010d") {
+  //hardcoding cast hash for now, a bit unfortunate.
+
   const fontPath = join(process.cwd(), 'helpers', 'Roboto-Regular.ttf');
   let fontData = fs.readFileSync(fontPath);
-  let pollData = [];
+  let pollData = [{
+    text: '3.14',
+    percentOfTotal: 0,
+    votes: 0
+  }, {
+    text: '42',
+    percentOfTotal: 0,
+    votes: 0
+  }, {
+    text: '69',
+    percentOfTotal: 0,
+    votes: 0
+  }, {
+    text: '1337',
+    percentOfTotal: 0,
+    votes: 0
+  }];
   if (cast_hash !== null) {
-    //make dune query
-    pollData = [];
-  } else {
-    //hardcoded poll options
-    pollData = [{
-      text: '3.14',
-      percentOfTotal: 0
-    }, {
-      text: '42',
-      percentOfTotal: 0
-    }, {
-      text: '69',
-      percentOfTotal: 0
-    }, {
-      text: '1337',
-      percentOfTotal: 0
-    }];
+    pollData = await get_poll_data(cast_hash, pollData);
+    console.log(pollData);
   }
 
   //get cast from neynar, split on first question mark and take from the first part only
@@ -58,17 +62,31 @@ export async function create_image(show_results = false, cast_hash = null) {
   }, title), pollData.map((opt, index) => {
     return /*#__PURE__*/React.createElement("div", {
       style: {
-        backgroundColor: show_results === 'true' ? '#007bff' : '',
+        display: 'flex',
+        justifyContent: 'space-between',
+        backgroundColor: '',
         color: '#fff',
+        width: '100%'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: `${show_results === 'true' ? opt.percentOfTotal : 100}%`,
+        backgroundColor: show_results === 'true' ? '#007bff' : '',
         padding: 10,
         marginBottom: 10,
         borderRadius: 4,
-        width: `${show_results === 'true' ? opt.percentOfTotal : 100}%`,
         whiteSpace: 'nowrap',
         overflow: 'visible'
       }
-    }, opt.text) //opt.text is the option text
-    ;
+    }, opt.text), /*#__PURE__*/React.createElement("span", {
+      style: {
+        padding: 10,
+        marginBottom: 10,
+        borderRadius: 4,
+        whiteSpace: 'nowrap',
+        overflow: 'visible'
+      }
+    }, show_results === 'true' ? opt.votes + ' votes' : ''));
   }))), {
     width: 600,
     height: 400,
