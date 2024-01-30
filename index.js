@@ -10,6 +10,7 @@ import { create_image } from './helpers/poll.js';
 const app = express();
 app.use(express.json()); 
 const base_url = process.env["IS_HEROKU"] == 'true' ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://67a1-2603-7000-8807-4100-682c-7192-d33e-af81.ngrok-free.app' // 'http://localhost:5001';
+console.log(base_url)
 
 app.get('/', (req, res) => {
   res.send('Hello casters!')
