@@ -12,7 +12,7 @@ import fetch from 'node-fetch';
 //     {text: '69', percentOfTotal: 0, votes: 0},
 //     {text: '1337', percentOfTotal: 0, votes: 0}
 // ]
-// const cast_hash = "0xa1d4242ae1c324f533c16c2636ca772c7caf9aed"
+// const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3"
 // //QA only
 
 const DUNE_API_KEY = process.env["DUNE_API_KEY"];
@@ -26,7 +26,7 @@ export async function get_poll_data(cast_hash, poll_data) {
             "x-dune-api-key": DUNE_API_KEY
         };
         const header = new Headers(meta);
-        const latest_response = await fetch('https://api.dune.com/api/v1/query/3389839/results', { //TODO add in cast hash in param
+        const latest_response = await fetch(`https://api.dune.com/api/v1/query/3389839/results?params.cast_hash=${cast_hash}`, {
             method: 'GET',
             headers: header,
         });
@@ -57,12 +57,17 @@ export async function get_poll_data(cast_hash, poll_data) {
     if (results == null) {
         console.log("No results for this cast hash");
     } else {
+        results.sort((a, b) => {
+            const buttonA = JSON.parse(a).button;
+            const buttonB = JSON.parse(b).button;
+            return buttonA - buttonB;
+        });
         for (let i = 0; i < results.length; i++) {
             poll_data[i].percentOfTotal = JSON.parse(results[i]).percentOfTotal;
             poll_data[i].votes = JSON.parse(results[i]).votes;
         }
     }
-    // console.log(poll_data)
+    console.log(poll_data)
     return poll_data
 }
 
