@@ -9,7 +9,7 @@ import { create_image } from './helpers/poll.js';
 
 const app = express();
 app.use(express.json()); 
-const base_url = process.env["IS_HEROKU"] == 'true' ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://67a1-2603-7000-8807-4100-682c-7192-d33e-af81.ngrok-free.app' // 'http://localhost:5001';
+const base_url = process.env["IS_HEROKU"] == 'true' ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://cf70-67-244-102-135.ngrok-free.app/';
 console.log(base_url)
 
 app.get('/', (req, res) => {
@@ -18,10 +18,9 @@ app.get('/', (req, res) => {
 
 app.get('/image', async (req, res) => {
   const showResults = req.query.show_results;
-  console.log(`show result: ${showResults === 'true' ? 'show' : 'hide'}`) //i have no idea why the query param isn't parsing to boolean correctly
-
-  //TODO: is there some way to pass cast hash in the image get url?
-  const pngBuffer = await create_image(showResults);
+  const cast_hash = req.query.cast_hash;
+  console.log(cast_hash)
+  const pngBuffer = await create_image(showResults, cast_hash);
   res.setHeader('Content-Type', 'image/png');
   res.setHeader('Cache-Control', 'max-age=10');
   res.send(pngBuffer);
@@ -85,7 +84,7 @@ app.post('/submit', async (req, res) => {
       if (result.isOk() && result.value.valid) {
         const validatedMessage = result.value.message;
         fid = validatedMessage.data.fid;
-        cast_hash = validatedMessage.data.frameActionBody.castId.hash.toString('hex');
+        cast_hash = '0x' + validatedMessage.data.frameActionBody.castId.hash.toString('hex');
         button_index = validatedMessage.data.frameActionBody.buttonIndex;
       } else {
         console.log(`Failed to validate message: ${result.error}`);
@@ -117,9 +116,9 @@ app.post('/submit', async (req, res) => {
           <head>
             <title>EAS Submitted!</title>
             <meta property="og:title" content="EAS Submitted">
-            <meta property="og:image" content="${base_url}/image?show_results=true">
+            <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
             <meta name="fc:frame" content="vNext">
-            <meta name="fc:frame:image" content="${base_url}/image?show_results=true">
+            <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
             <meta name="fc:frame:post_url" content="https://google.com">
             <meta name="fc:frame:button:1" content="${vote_status ? 'Already voted' : 'Vote submitted as an attestation'}">
           </head>
@@ -136,9 +135,9 @@ app.post('/submit', async (req, res) => {
       <head>
         <title>Submit an attestation</title>
         <meta property="og:title" content="Submit an attestation">
-        <meta property="og:image" content="${base_url}/image?show_results=false">
+        <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
         <meta name="fc:frame" content="vNext">
-        <meta name="fc:frame:image" content="${base_url}/image?show_results=false">
+        <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
         <meta name="fc:frame:post_url" content="https://google.com">
         <meta name="fc:frame:button:1" content="Failed to vote, refresh and try again">
       </head>
