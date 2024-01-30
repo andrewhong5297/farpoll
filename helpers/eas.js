@@ -38,7 +38,23 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
 
     const newAttestationUID = await tx.wait();
     console.log("New attestation UID:", newAttestationUID);
-    return true;
+
+    // //maybe don't need this
+    // const endpoint = "https://base.easscan.org/graphql";
+    // const graphQLClient = new GraphQLClient(endpoint);
+    // const query = gql`
+    // query Query {
+    //     getAttestation(where: { id: "${newAttestationUID}" }) {
+    //     }) {
+    //       id
+    //       txid
+    //     }
+    //   }
+    // `;
+    // const response = await graphQLClient.request(query);
+    // const tx_id = response.getAttestation?.txid
+
+    return tx.tx;
 }
 
 export async function eas_check(cast_hash, attest_wallet) {
@@ -48,7 +64,6 @@ export async function eas_check(cast_hash, attest_wallet) {
     
     const endpoint = "https://base.easscan.org/graphql";
     const graphQLClient = new GraphQLClient(endpoint);
-
     const query = gql`
         query Query {
             findFirstAttestation(where: {
