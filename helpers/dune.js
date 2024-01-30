@@ -62,7 +62,7 @@ export async function get_poll_data(cast_hash, poll_data) {
             poll_data[i].votes = JSON.parse(results[i]).votes;
         }
     }
-    console.log(poll_data)
+    // console.log(poll_data)
     return poll_data
 }
 
