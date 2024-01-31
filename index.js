@@ -182,7 +182,7 @@ app.post('/redirect', async (req, res) => {
 
 app.get('/dune', async (req, res) => {
   const cast_hash = req.query.cast_hash;
-  const dune_url = `https://dune.com/ilemi/frames-users?cast_hash_t76384=${cast_hash}`
+  const dune_url = `https://dune.com/ilemi/farpoll?cast_hash_t76384=${cast_hash}`
   res.redirect(dune_url)
 })
 

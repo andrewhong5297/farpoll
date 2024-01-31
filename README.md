@@ -5,7 +5,7 @@
 
 This repo is the code behind [ask.farpoll.com/start](https://ask.farpoll.com/start), which is a [frame on Farcaster](https://warpcast.notion.site/Farcaster-Frames-4bd47fe97dc74a42a48d3a234636d8c5) that will parse the question and button options from within a cast, and then store the vote results onchain using [this EAS schema](https://base.easscan.org/schema/view/0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde). 
 
-Additionally, the frame displays transaction confirmations with [onceupon.gg](https://og.onceupon.gg/card/0x65f9e4ee88874cd57bd905f09c984637b4c524be42f372f28740fc17e4b2c7bb) and then redirects out to [dune.com](https://dune.com/ilemi/frames-users) to showcase analytics behind the voters.
+Additionally, the frame displays transaction confirmations with [onceupon.gg](https://og.onceupon.gg/card/0x65f9e4ee88874cd57bd905f09c984637b4c524be42f372f28740fc17e4b2c7bb) and then redirects out to [dune.com](https://dune.com/ilemi/farpoll) to showcase analytics behind the voters.
 
 Having the vote data onchain through EAS allows for frames to essentially act as smart contracts that emit "logs". This is useful for more than just analytics, you could tie it to "reserving" a mint as well. I'm still exploring offchain options for cheaper storage. 
 
