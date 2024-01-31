@@ -20,6 +20,7 @@ const DUNE_API_KEY = process.env["DUNE_API_KEY"];
 export async function get_poll_data(cast_hash, poll_data) {
     // try latest, and then refresh if latest doesn't work. TODO: add latest results endpoint to sdk
     // eas dune query: https://dune.com/queries/3389839
+    console.log('get dune data for: ', cast_hash)
     let results = null
     try{
         const meta = {
@@ -32,17 +33,19 @@ export async function get_poll_data(cast_hash, poll_data) {
         });
 
         const body = await latest_response.text();
-
         //if execution is stale, refresh it
         const executionEndedAt = JSON.parse(body).execution_ended_at;
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-        if (executionEndedAt < fiveMinutesAgo) {
-            throw new Error("Execution ended more than five minutes ago.");
+        const oneMinuteAgo = new Date(Date.now() - 1 * 60 * 1000).toISOString();
+        if (executionEndedAt < oneMinuteAgo) {
+            throw new Error("Execution ended more than one minutes ago.");
         } else {
             results = JSON.parse(body)?.result?.rows[0].results;
+            if (results == null) {
+                throw new Error(body);
+            }
         }
     } catch (error) {
-        // console.log(error)
+        console.log(error)
         const client = new DuneClient(DUNE_API_KEY ?? "");
         const queryID = 3389839;
         const parameters = [
@@ -55,7 +58,7 @@ export async function get_poll_data(cast_hash, poll_data) {
 
     // Iterate through poll_data and replace percentOfTotal values with the same index from results
     if (results == null) {
-        // console.log("No results for this cast hash");
+        console.log("No results for this cast hash");
     } else {
         results.sort((a, b) => {
             const buttonA = JSON.parse(a).button;
