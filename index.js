@@ -8,7 +8,7 @@ import { create_image } from './helpers/poll.js';
 
 const app = express();
 app.use(express.json()); 
-const base_url = process.env["IS_HEROKU"] == 'true' ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://cf70-67-244-102-135.ngrok-free.app';
+const base_url = process.env["IS_PROD"] == 'true' ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://cf70-67-244-102-135.ngrok-free.app';
 console.log(base_url)
 
 app.get('/', (req, res) => {
@@ -49,20 +49,19 @@ app.get('/start', (req, res) => {
 
 app.post('/poll', async (req, res) => {
   console.log('poll')
-  // const cast_hash = "0x7065681cfd13c093706f77f34d32fe2c0e87d6c6" //QA testing hardcode
+  // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode
   // const attest_wallet = "0xFdB1636C17DBC312f5E48625981499a4a179d6f0" //QA testing hardcode
   // const existing_attestation = false //QA testing hardcode
-  
   const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
-  const { existing_attestation, tx_id} = await eas_check(cast_hash, attest_wallet)
-
+  
+  const exists = await eas_check(cast_hash, attest_wallet)
   let display_html;
-  if (existing_attestation) {
+  if (exists.exists) {
     // user already has an attestation, show results
     display_html = `
-    <meta property="og:image" content="https://og.onceupon.gg/card/${tx_id}">
+    <meta property="og:image" content="https://og.onceupon.gg/card/${exists.hash}">
     <meta name="fc:frame" content="vNext">
-    <meta name="fc:frame:image" content="https://og.onceupon.gg/card/${tx_id}">
+    <meta name="fc:frame:image" content="https://og.onceupon.gg/card/${exists.hash}">
     <meta name="fc:frame:post_url" content="${base_url}/results">
     <meta name="fc:frame:button:1" content="already voted, show results">
     `
@@ -103,8 +102,8 @@ app.post('/submit', async (req, res) => {
 
   try {
     //get required EAS data. If they get to this screen, they have already been checked for vote status
-    const tx_id = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //mint the attestation
-    // const tx_id = '0x5c06b77273988a2ad5177307dded64dddf41be2173178e47b45893dc334e985f' //QA testing hardcode
+    const tx_id = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //add "verifiable=true" if you want to include trustedData in the mint. It's just expensive.
+    // const tx_id = '0x5c06b77273988a2ad5177307dded64dddf41be2173178e47b45893dc334e985f' //QA testing hardcode for onceupon
 
     //Successful, pull image from onceupon.
     res.setHeader('Content-Type', 'text/html');
@@ -151,7 +150,8 @@ app.post('/submit', async (req, res) => {
 app.post('/results', async (req, res) => {
     console.log('results')
     const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
-    // const cast_hash = "0x7065681cfd13c093706f77f34d32fe2c0e87d6c6" //QA testing hardcode
+    // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode for redirects
+
     res.setHeader('Content-Type', 'text/html');
     res.status(200).send(`
         <!DOCTYPE html>
