@@ -19,7 +19,6 @@ app.get('/image', async (req, res) => {
   console.log('image') 
   const showResults = req.query.show_results;
   const cast_hash = req.query.cast_hash;
-  console.log(cast_hash)
   const pngBuffer = await create_image(showResults, cast_hash);
   res.setHeader('Content-Type', 'image/png');
   res.setHeader('Cache-Control', 'max-age=10');
@@ -156,14 +155,22 @@ app.post('/results', async (req, res) => {
             <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
             <meta name="fc:frame" content="vNext">
             <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
-            <meta name="fc:frame:post_url" content="https://dune.com/ilemi/frames-users?cast_hash_t76384=${cast_hash}">
-            <meta name="fc:frame:button:1" content="see data on voter wallets 👉">
+            <meta name="fc:frame:post_url" content="${base_url}/redirect">
+            <meta name="fc:frame:button:1:post_redirect" content="see data on voter wallets 👉">
           </head>
           <body>
             <p>see results</p>
           </body>
         </html>`);
 });
+
+app.post('/redirect', async (req, res) => {
+  console.log('redirect')
+  console.log(req.body)
+  const cast_hash = req.query.cast_hash; 
+  const frameServerUrl = `https://dune.com/ilemi/frames-users?cast_hash_t76384=${cast_hash}`;
+  res.redirect(frameServerUrl);
+}); 
 
 app.listen(process.env.PORT || 5001, () => {
   console.log(`app listening on port ${process.env.PORT || 5001}`);

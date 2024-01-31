@@ -15,32 +15,34 @@ export async function create_image(show_results = false, cast_hash = null) {
   let question;
   try {
     const results = await parse_cast(cast_hash);
-    console.log(results);
-    pollData = results.options.map(option => ({
+    // console.log(results)
+    pollData = results.options.map((option, index) => ({
       text: option,
       percentOfTotal: 0,
-      votes: 0
+      votes: 0,
+      key: index
     }));
     question = results.question;
   } catch (e) {
     pollData = [{
       text: '- included a "?"',
       percentOfTotal: 0,
-      votes: 0
+      votes: 0,
+      key: 1
     }, {
       text: '- put options in [a,b,c] format',
       percentOfTotal: 0,
-      votes: 0
+      votes: 0,
+      key: 2
     }];
     question = "error parsing cast, make sure you:";
   }
-  console.log(pollData);
-  console.log("show results: " + show_results);
   if (cast_hash !== null && show_results === 'true') {
     //get poll data from Dune 
     pollData = await get_poll_data(cast_hash, pollData);
-    console.log(pollData);
   }
+
+  // console.log(pollData)
   const fontPath = join(process.cwd(), 'helpers', 'Roboto-Regular.ttf');
   const fontData = fs.readFileSync(fontPath);
   const svg = await satori( /*#__PURE__*/React.createElement("div", {
@@ -66,9 +68,11 @@ export async function create_image(show_results = false, cast_hash = null) {
       textAlign: 'center',
       color: 'lightgray'
     }
-  }, question), pollData.map((opt, index) => {
+  }, question), pollData.map(opt => {
     return /*#__PURE__*/React.createElement("div", {
+      key: opt.key,
       style: {
+        // Add key prop
         display: 'flex',
         justifyContent: 'space-between',
         backgroundColor: '',

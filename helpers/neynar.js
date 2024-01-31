@@ -14,9 +14,7 @@ export async function parse_cast(cast_hash) {
 }
 
 export async function get_user_wallet(fid) {
-    console.log('get custody wallet from neynar for ' + fid)
-    const client = new NeynarAPIClient(NEYNAR_API_KEY);
-    
+    const client = new NeynarAPIClient(NEYNAR_API_KEY);    
     const user_data = await client.lookupUserByFid(fid, 1)
     const attest_wallet = user_data.result.user.custodyAddress //or you can get user_data.result.user.verifications
     // console.log(attest_wallet)
@@ -45,10 +43,10 @@ export async function get_cast(body) {
         const attest_wallet = await get_user_wallet(fid) //waiting for result.action.interactor.custody_address
         const button_index = result.action.tapped_button.index
 
-        console.log('attested: ' + attest_wallet)
-        console.log('cast: ' + cast_hash);
-        console.log('button index: ' + button_index)
-        console.log('trusted: ' + trusted_data)
+        // console.log('attested: ' + attest_wallet)
+        // console.log('cast: ' + cast_hash);
+        // console.log('button index: ' + button_index)
+        // console.log('trusted: ' + trusted_data)
         return { cast_hash, button_index, trusted_data, fid, attest_wallet }
     } else {
         console.log(`Failed to validate message: ${result.error}`);
