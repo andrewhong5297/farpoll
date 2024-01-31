@@ -1,6 +1,7 @@
 # Farpoll
 
-#### Put your question and options into a cast with the link `https://ask.farpoll.com/start`, and automagically turn it into an onchain poll.
+> [!IMPORTANT]
+> Put your question and options into a cast with the link `https://ask.farpoll.com/start`, and automagically turn it into an onchain poll.
 
 This repo is the code behind [ask.farpoll.com/start](https://ask.farpoll.com/start), which is a [frame on Farcaster](https://warpcast.notion.site/Farcaster-Frames-4bd47fe97dc74a42a48d3a234636d8c5) that will parse the question and button options from within a cast, and then store the vote results onchain using [this EAS schema](https://base.easscan.org/schema/view/0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde). 
 
@@ -13,8 +14,6 @@ Having the vote data onchain through EAS allows for frames to essentially act as
 Put in the relevant keys in the `.env` file. If you want to post to your own EAS schema with more variables, go create a schema and edit the encoder and schemaUID. You also have the option to change the code to post offchain if you want to, docs are linked in the script.
 
 For testing, I recommend you localhost into an ngrok and then test with [this developer frames frontend](https://warpcast.com/~/developers/frames).
-
-I'm a javascript noob so ignore all my spaghetti code. Feel free to make PRs with improvements and thoughts 😁
 
 To start, install all the packages.
 
@@ -36,8 +35,11 @@ To run the app in production, use:
 npm start
 ```
 
-## Frame Logically Flow
+I'm a javascript noob so ignore all my spaghetti code. Feel free to make PRs with improvements and thoughts 😁
 
+## Frame Logical Flow
+
+This is the flow of frames that can be found in endpoints in `index.js`. I use an express app to manage the backend.
 1. start on `/start` page, ask users to click "load poll".
 2. go to `/poll`, and check if user has already made an attestation. If so, show them the confirmation of their attestation and push them to `/results` screen
 3. if not, give them the `/poll` screen that pulls questions/options from the cast (parses first question mark, and options out of a [a,b,c])
