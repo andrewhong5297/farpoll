@@ -38,7 +38,7 @@ app.get('/start', (req, res) => {
         <meta name="fc:frame" content="vNext">
         <meta name="fc:frame:image" content="https://substackcdn.com/image/fetch/w_1456,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F497f2650-6a20-4a36-8008-57aa5a90f74d_916x476.png">
         <meta name="fc:frame:post_url" content="${base_url}/poll">
-        <meta name="fc:frame:button:1" content="Click here to start">
+        <meta name="fc:frame:button:1" content="Load Poll">
       </head>
       <body> 
         <p>Submit your prediction</p>
@@ -143,8 +143,8 @@ app.post('/submit', async (req, res) => {
 
 app.post('/results', async (req, res) => {
     console.log('results')
-    // console.log(req.body);
-    const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
+    // const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
+    const cast_hash = "0x7065681cfd13c093706f77f34d32fe2c0e87d6c6" //QA testing hardcode
     res.setHeader('Content-Type', 'text/html');
     res.status(200).send(`
         <!DOCTYPE html>
@@ -155,8 +155,9 @@ app.post('/results', async (req, res) => {
             <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
             <meta name="fc:frame" content="vNext">
             <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+            <meta name="fc:frame:button:1" content="see data on voter wallets 👉">
+            <meta name="fc:frame:button:1:action" content="post_redirect">
             <meta name="fc:frame:post_url" content="${base_url}/redirect">
-            <meta name="fc:frame:button:1:post_redirect" content="see data on voter wallets 👉">
           </head>
           <body>
             <p>see results</p>
@@ -165,12 +166,17 @@ app.post('/results', async (req, res) => {
 });
 
 app.post('/redirect', async (req, res) => {
-  console.log('redirect')
-  console.log(req.body)
-  const cast_hash = req.query.cast_hash; 
-  const frameServerUrl = `https://dune.com/ilemi/frames-users?cast_hash_t76384=${cast_hash}`;
-  res.redirect(frameServerUrl);
-}); 
+  //need to first redirect to a url with the same host name, then I can redirect out to another domain
+  const cast_hash = req.body?.untrustedData?.castId?.hash
+  console.log('redirect: ' + cast_hash)
+  res.redirect(`${base_url}/dune?cast_hash=${cast_hash}`);
+});
+
+app.get('/dune', async (req, res) => {
+  const cast_hash = req.query.cast_hash;
+  const dune_url = `https://dune.com/ilemi/frames-users?cast_hash_t76384=${cast_hash}`
+  res.redirect(dune_url)
+})
 
 app.listen(process.env.PORT || 5001, () => {
   console.log(`app listening on port ${process.env.PORT || 5001}`);

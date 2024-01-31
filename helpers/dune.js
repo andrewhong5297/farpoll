@@ -42,7 +42,7 @@ export async function get_poll_data(cast_hash, poll_data) {
             results = JSON.parse(body)?.result?.rows[0].results;
         }
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         const client = new DuneClient(DUNE_API_KEY ?? "");
         const queryID = 3389839;
         const parameters = [
@@ -55,7 +55,7 @@ export async function get_poll_data(cast_hash, poll_data) {
 
     // Iterate through poll_data and replace percentOfTotal values with the same index from results
     if (results == null) {
-        console.log("No results for this cast hash");
+        // console.log("No results for this cast hash");
     } else {
         results.sort((a, b) => {
             const buttonA = JSON.parse(a).button;
