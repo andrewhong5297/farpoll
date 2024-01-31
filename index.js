@@ -8,7 +8,7 @@ import { create_image } from './helpers/poll.js';
 
 const app = express();
 app.use(express.json()); 
-const base_url = process.env["IS_PROD"] == 'true' ? 'https://frame-eas-a34243560586.herokuapp.com' : 'https://cf70-67-244-102-135.ngrok-free.app';
+const base_url = process.env["IS_PROD"] == 'true' ? 'https://ask.farpoll.com' : 'https://cf70-67-244-102-135.ngrok-free.app';
 console.log(base_url)
 
 app.get('/', (req, res) => {
