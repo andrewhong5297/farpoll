@@ -3,7 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import { eas_mint, eas_check } from './helpers/eas.js';
-import { get_user_wallet, get_cast } from './helpers/neynar.js';
+import { parse_cast, get_cast } from './helpers/neynar.js';
 import { create_image } from './helpers/poll.js';
 
 const app = express();
@@ -16,6 +16,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/image', async (req, res) => {
+  console.log('image') 
   const showResults = req.query.show_results;
   const cast_hash = req.query.cast_hash;
   console.log(cast_hash)
@@ -26,6 +27,7 @@ app.get('/image', async (req, res) => {
 });
 
 app.get('/start', (req, res) => {
+  console.log('start')
   res.setHeader('Content-Type', 'text/html');
   res.status(200).send(`
     <!DOCTYPE html>
@@ -47,23 +49,30 @@ app.get('/start', (req, res) => {
 });
 
 app.post('/poll', async (req, res) => {
+  console.log('poll')
   const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
-  //check if user has already voted or not. depending on vote state display different buttons
   const existing_attestation = await eas_check(cast_hash, attest_wallet)
   let display_html;
-  // if (existing_attestation) {
-  if (1===2) {
+  if (existing_attestation) {
+        // const cast_hash = "0x7065681cfd13c093706f77f34d32fe2c0e87d6c6" //QA testing hardcode
+        // if (1===2) { //QA testing hardcode
+    // user already has an attestation, show results
     display_html = `
     <meta name="fc:frame:post_url" content="${base_url}/results">
     <meta name="fc:frame:button:1" content="already voted, show results">
     `
   } else {
+    // user has not voted yet, show poll
+    const results = await parse_cast(cast_hash)
+    const buttons = results.options.map((option, index) => ({
+      [`fc:frame:button:${index + 1}`]: option
+    }))
     display_html = `
     <meta name="fc:frame:post_url" content="${base_url}/submit">
-    <meta name="fc:frame:button:1" content="test input">
+    ${buttons.map(button => Object.entries(button).map(([key, value]) => `<meta name="${key}" content="${value}">`).join('\n')).join('\n')}
     `
-    //make the buttons and text a mapping from the cast_hash later.
   }
+
   res.setHeader('Content-Type', 'text/html');
   res.status(200).send(`
     <!DOCTYPE html>
@@ -76,7 +85,7 @@ app.post('/poll', async (req, res) => {
         <meta name="fc:frame:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
         ${display_html}
       </head>
-      <body> 
+      <body>
         <p>Submit a vote</p>
       </body>
     </html>
@@ -84,12 +93,12 @@ app.post('/poll', async (req, res) => {
 });
 
 app.post('/submit', async (req, res) => {
+  console.log('submit')
   try {
     //get required EAS data. If they get to this screen, they have already been checked for vote status
-    console.log(req.body);
     // const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
     // const tx_id = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //mint the attestation
-    const tx_id = '0x5c06b77273988a2ad5177307dded64dddf41be2173178e47b45893dc334e985f' //QA testing
+    const tx_id = '0x5c06b77273988a2ad5177307dded64dddf41be2173178e47b45893dc334e985f' //QA testing hardcode
 
     //Successful, pull image from onceupon.
     res.setHeader('Content-Type', 'text/html');
@@ -134,7 +143,8 @@ app.post('/submit', async (req, res) => {
 });
 
 app.post('/results', async (req, res) => {
-    console.log(req.body);
+    console.log('results')
+    // console.log(req.body);
     const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
     res.setHeader('Content-Type', 'text/html');
     res.status(200).send(`
@@ -146,8 +156,8 @@ app.post('/results', async (req, res) => {
             <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
             <meta name="fc:frame" content="vNext">
             <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
-            <meta name="fc:frame:post_url" content="https://dune.com/ilemi/frames-users">
-            <meta name="fc:frame:button:1" content="voter distribution stats ->">
+            <meta name="fc:frame:post_url" content="https://dune.com/ilemi/frames-users?cast_hash_t76384=${cast_hash}">
+            <meta name="fc:frame:button:1" content="see data on voter wallets 👉">
           </head>
           <body>
             <p>see results</p>

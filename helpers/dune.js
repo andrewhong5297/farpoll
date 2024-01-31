@@ -62,7 +62,7 @@ export async function get_poll_data(cast_hash, poll_data) {
             const buttonB = JSON.parse(b).button;
             return buttonA - buttonB;
         });
-        for (let i = 0; i < results.length; i++) {
+        for (let i = 0; i < results.length && i < poll_data.length; i++) {
             poll_data[i].percentOfTotal = JSON.parse(results[i]).percentOfTotal;
             poll_data[i].votes = JSON.parse(results[i]).votes;
         }

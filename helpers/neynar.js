@@ -3,6 +3,16 @@ dotenv.config();
 import { NeynarAPIClient } from "@neynar/nodejs-sdk";
 const NEYNAR_API_KEY = process.env['NEYNAR_API_KEY'];
 
+export async function parse_cast(cast_hash) {
+    const client = new NeynarAPIClient(NEYNAR_API_KEY);
+    const cast_data = await client.lookUpCastByHash(cast_hash, 1) 
+    const text = cast_data?.result?.cast?.text
+    return { 
+        question: text.split('?')[0], 
+        options: text.match(/\[(.*?)\]/)[1].split(',')
+    }; 
+}
+
 export async function get_user_wallet(fid) {
     console.log('get custody wallet from neynar for ' + fid)
     const client = new NeynarAPIClient(NEYNAR_API_KEY);
