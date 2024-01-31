@@ -49,14 +49,20 @@ app.get('/start', (req, res) => {
 
 app.post('/poll', async (req, res) => {
   console.log('poll')
+  // const cast_hash = "0x7065681cfd13c093706f77f34d32fe2c0e87d6c6" //QA testing hardcode
+  // const attest_wallet = "0xFdB1636C17DBC312f5E48625981499a4a179d6f0" //QA testing hardcode
+  // const existing_attestation = false //QA testing hardcode
+  
   const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
-  const existing_attestation = await eas_check(cast_hash, attest_wallet)
+  const { existing_attestation, tx_id} = await eas_check(cast_hash, attest_wallet)
+
   let display_html;
   if (existing_attestation) {
-        // const cast_hash = "0x7065681cfd13c093706f77f34d32fe2c0e87d6c6" //QA testing hardcode
-        // if (1===2) { //QA testing hardcode
     // user already has an attestation, show results
     display_html = `
+    <meta property="og:image" content="https://og.onceupon.gg/card/${tx_id}">
+    <meta name="fc:frame" content="vNext">
+    <meta name="fc:frame:image" content="https://og.onceupon.gg/card/${tx_id}">
     <meta name="fc:frame:post_url" content="${base_url}/results">
     <meta name="fc:frame:button:1" content="already voted, show results">
     `
@@ -67,6 +73,9 @@ app.post('/poll', async (req, res) => {
       [`fc:frame:button:${index + 1}`]: option
     }))
     display_html = `
+    <meta property="og:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
+    <meta name="fc:frame" content="vNext">
+    <meta name="fc:frame:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
     <meta name="fc:frame:post_url" content="${base_url}/submit">
     ${buttons.map(button => Object.entries(button).map(([key, value]) => `<meta name="${key}" content="${value}">`).join('\n')).join('\n')}
     `
@@ -79,9 +88,6 @@ app.post('/poll', async (req, res) => {
       <head>
         <title>Submit a vote</title>
         <meta property="og:title" content="Submit a vote">
-        <meta property="og:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
-        <meta name="fc:frame" content="vNext">
-        <meta name="fc:frame:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
         ${display_html}
       </head>
       <body>
@@ -93,11 +99,12 @@ app.post('/poll', async (req, res) => {
 
 app.post('/submit', async (req, res) => {
   console.log('submit')
+  const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
+
   try {
     //get required EAS data. If they get to this screen, they have already been checked for vote status
-    // const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
-    // const tx_id = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //mint the attestation
-    const tx_id = '0x5c06b77273988a2ad5177307dded64dddf41be2173178e47b45893dc334e985f' //QA testing hardcode
+    const tx_id = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //mint the attestation
+    // const tx_id = '0x5c06b77273988a2ad5177307dded64dddf41be2173178e47b45893dc334e985f' //QA testing hardcode
 
     //Successful, pull image from onceupon.
     res.setHeader('Content-Type', 'text/html');
@@ -143,8 +150,8 @@ app.post('/submit', async (req, res) => {
 
 app.post('/results', async (req, res) => {
     console.log('results')
-    // const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
-    const cast_hash = "0x7065681cfd13c093706f77f34d32fe2c0e87d6c6" //QA testing hardcode
+    const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
+    // const cast_hash = "0x7065681cfd13c093706f77f34d32fe2c0e87d6c6" //QA testing hardcode
     res.setHeader('Content-Type', 'text/html');
     res.status(200).send(`
         <!DOCTYPE html>

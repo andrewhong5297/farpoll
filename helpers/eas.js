@@ -15,6 +15,7 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
     eas.connect(signer);
 
     // Initialize SchemaEncoder with the schema string
+    cast_hash = cast_hash.startsWith('0x') ? cast_hash.substring(2) : cast_hash; //depending on source, sometimes hash has 0x in it.
     const padded_cast = Buffer.from(cast_hash + '0'.repeat(64 - cast_hash.length), 'hex')
     const schemaEncoder = new SchemaEncoder("bytes32 cast_hash, uint112 fid, uint8 button_index, bytes trusted_data");
     const encodedData = schemaEncoder.encodeData([
@@ -38,23 +39,8 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
 
     const newAttestationUID = await tx.wait();
     console.log("New attestation UID:", newAttestationUID);
-
-    // //maybe don't need this
-    // const endpoint = "https://base.easscan.org/graphql";
-    // const graphQLClient = new GraphQLClient(endpoint);
-    // const query = gql`
-    // query Query {
-    //     getAttestation(where: { id: "${newAttestationUID}" }) {
-    //     }) {
-    //       id
-    //       txid
-    //     }
-    //   }
-    // `;
-    // const response = await graphQLClient.request(query);
-    // const tx_id = response.getAttestation?.txid
-
-    return tx.tx;
+    console.log(tx.tx.hash)
+    return tx.tx.hash;
 }
 
 export async function eas_check(cast_hash, attest_wallet) {
@@ -86,15 +72,17 @@ export async function eas_check(cast_hash, attest_wallet) {
             data
             decodedDataJson
             time
+            txid
             }
         }
     `;
 
     const response = await graphQLClient.request(query);
     if (response.findFirstAttestation == null) {
-        return false;
+        return { exists: false, hash: null };
     } else {
         console.log("already attested: " + response.findFirstAttestation?.id);
-        return true
+        console.log("tx hash: " + response.findFirstAttestation?.txid);
+        return { exists: true, hash: response.findFirstAttestation?.txid };
     }
 }
