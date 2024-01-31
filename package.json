@@ -16,7 +16,7 @@
     "@cowprotocol/ts-dune-client": "^0.0.2",
     "@ethereum-attestation-service/eas-sdk": "^1.4.0",
     "@farcaster/hub-nodejs": "^0.10.21",
-    "@neynar/nodejs-sdk": "^1.8.0",
+    "@neynar/nodejs-sdk": "^1.9.0",
     "dotenv": "^16.4.1",
     "ejs": "^3.1.5",
     "ethers": "^6.10.0",
@@ -28,7 +28,6 @@
     "react": "^18.2.0",
     "satori": "^0.10.11",
     "sharp": "^0.33.2",
-    "solady": "^0.0.166",
     "viem": "^2.6.0"
   },
   "keywords": [

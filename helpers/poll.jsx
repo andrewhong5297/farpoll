@@ -5,25 +5,40 @@ import { join } from 'path';
 import * as fs from "fs";
 import React from "react";
 import { get_poll_data } from "./dune.js"
+import { parse_cast } from "./neynar.js"
 
 //this should take a cast hash, then query Dune to get the poll results as a json array. Then displays them.
 export async function create_image(show_results=false, cast_hash=null) {
-    const fontPath = join(process.cwd(), 'helpers', 'Roboto-Regular.ttf')
-    let fontData = fs.readFileSync(fontPath)
-    let pollData = [
-        {text: '1 year', percentOfTotal: 0, votes: 0},
-        {text: '2 years', percentOfTotal: 0, votes: 0},
-        {text: '4 years', percentOfTotal: 0, votes: 0},
-        {text: '8 years', percentOfTotal: 0, votes: 0}
-    ]
-    if (cast_hash !== null) {
-        pollData = await get_poll_data(cast_hash, pollData)
-        console.log(pollData)
+    // cast_hash = '0x7065681cfd13c093706f77f34d32fe2c0e87d6c6' //test for parsing
+    //get cast from neynar
+    let pollData;
+    let question;
+    try {
+        const results = await parse_cast(cast_hash)
+        // console.log(results)
+        pollData = results.options.map((option, index) => ({
+            text: option,
+            percentOfTotal: 0,
+            votes: 0,
+            key: index 
+        }));
+        question = results.question
+    } catch (e) {
+        pollData = [
+            {text: '- included a "?"', percentOfTotal: 0, votes: 0, key: 1},
+            {text: '- put options in [a,b,c] format', percentOfTotal: 0, votes: 0, key: 2} 
+        ]
+        question = "error parsing cast, make sure you:"
     }
 
-    //get cast from neynar, split on first question mark and take from the first part only
-    const title = "How long until we have 1B users onchain every month?"
+    if (cast_hash !== null && show_results === 'true') {
+        //get poll data from Dune 
+        pollData = await get_poll_data(cast_hash, pollData)
+    }
 
+    // console.log(pollData)
+    const fontPath = join(process.cwd(), 'helpers', 'Roboto-Regular.ttf')
+    const fontData = fs.readFileSync(fontPath)
     const svg = await satori(
         <div style={{
             justifyContent: 'flex-start',
@@ -41,11 +56,11 @@ export async function create_image(show_results=false, cast_hash=null) {
                 flexDirection: 'column',
                 padding: 20,
             }}>
-                <h2 style={{textAlign: 'center', color: 'lightgray'}}>{title}</h2>
+                <h2 style={{textAlign: 'center', color: 'lightgray'}}>{question}</h2>
                 {
-                    pollData.map((opt, index) => {
+                    pollData.map((opt) => {
                         return (
-                            <div style={{
+                            <div key={opt.key} style={{ // Add key prop
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 backgroundColor: '',

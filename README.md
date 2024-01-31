@@ -1,20 +1,47 @@
-# Farcaster Frames with EAS attestations and Dune queries
+# Farpoll
 
-Frame actions are not captured in the hub right now, so I wanted to enable ethereum "log" like behavior for frames that need them.
+> [!IMPORTANT]
+> Put a question "?" and options "[a,b,c]" into a cast and paste the link `https://ask.farpoll.com/start`. This will automagically turn it into an onchain poll frame on Farcaster.
 
-This frame repo allows you to store button actions in an EAS schema onchain, and then pull that data using Dune to render the poll image.
+This repo is the code behind [ask.farpoll.com/start](https://ask.farpoll.com/start), which is a [frame on Farcaster](https://warpcast.notion.site/Farcaster-Frames-4bd47fe97dc74a42a48d3a234636d8c5) that will parse the question and button options from within a cast, and then store the vote results onchain using [this EAS schema](https://base.easscan.org/schema/view/0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde). 
 
-Useful for:
-- generally storing past frames data for historical access
-- pushing action data onchain for stuff like "reserving" a mint
-- get be stored offchain or onchain, as needed
+Additionally, the frame displays transaction confirmations with [onceupon.gg](https://og.onceupon.gg/card/0x65f9e4ee88874cd57bd905f09c984637b4c524be42f372f28740fc17e4b2c7bb) and then redirects out to [dune.com](https://dune.com/ilemi/frames-users) to showcase analytics behind the voters.
+
+Having the vote data onchain through EAS allows for frames to essentially act as smart contracts that emit "logs". This is useful for more than just analytics, you could tie it to "reserving" a mint as well. I'm still exploring offchain options for cheaper storage. 
 
 ## Setup
 
 Put in the relevant keys in the `.env` file. If you want to post to your own EAS schema with more variables, go create a schema and edit the encoder and schemaUID. You also have the option to change the code to post offchain if you want to, docs are linked in the script.
 
-For testing, I recommend you localhost into an ngrok and then just test with a live cast (developer embed doesn't work because trustedData only gets sent from warpcast client). 
+For testing, I recommend you localhost into an ngrok and then test with [this developer frames frontend](https://warpcast.com/~/developers/frames).
 
-I'm a javascript noob so ignore all my spaghetti code. Feel free to make PRs with improvements and thoughts.
+To start, install all the packages.
 
-If you make edits to the poll.jsx file, remember to run `npm run build` to update the js file that gets actually run.
+```
+npm install
+```
+
+If you make edits to the `poll.jsx` file, remember to run `npm run build` to update the js file that gets actually run. Bonus points if someone figures out webpacks and how to get this to build on the fly.
+
+To run the app locally, use:
+
+```
+npm run dev
+```
+
+To run the app in production, use:
+
+```
+npm start
+```
+
+I'm a javascript noob so ignore all my spaghetti code. Feel free to make PRs with improvements and thoughts 😁
+
+## Frame Logical Flow
+
+This is the flow of frames that can be found in endpoints in `index.js`. I use an express app to manage the backend.
+1. start on `/start` page, ask users to click "load poll".
+2. go to `/poll`, and check if user has already made an attestation. If so, show them the confirmation of their attestation and push them to `/results` screen
+3. if not, give them the `/poll` screen that pulls questions/options from the cast (parses first question mark, and options out of a [a,b,c])
+4. return onceupon frame after confirmation. let them click "see results" to push them to `/results` screen
+5. shows them poll results screen, which has a redirect to the dune dashboard to see voter distribution data.
