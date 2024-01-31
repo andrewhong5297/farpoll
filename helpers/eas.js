@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { getAddress } from 'viem' //ethers is broken
 import { gql, GraphQLClient } from 'graphql-request';
 
+//@todo: make this offchain EAS and then upload in bulk to dune
 export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data, verifiable=false) {
     //push to EAS either onchain or offchain. docs: https://docs.attest.sh/docs/tutorials/make-an-attestation
     const provider = ethers.getDefaultProvider(

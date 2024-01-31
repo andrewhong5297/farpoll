@@ -64,7 +64,7 @@ app.post('/poll', async (req, res) => {
     <meta name="fc:frame" content="vNext">
     <meta name="fc:frame:image" content="https://og.onceupon.gg/card/${exists.hash}">
     <meta name="fc:frame:post_url" content="${base_url}/results">
-    <meta name="fc:frame:button:1" content="already voted, show results">
+    <meta name="fc:frame:button:1" content="you voted, click here show results">
     `
   } else {
     // user has not voted yet, show poll options
