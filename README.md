@@ -1,7 +1,7 @@
 # Farpoll
 
 > [!IMPORTANT]
-> Put your question and options into a cast with the link `https://ask.farpoll.com/start`, and automagically turn it into an onchain poll.
+> Put a question "?" and options "[a,b,c]" into a cast and paste the link `https://ask.farpoll.com/start`. This will automagically turn it into an onchain poll frame on Farcaster.
 
 This repo is the code behind [ask.farpoll.com/start](https://ask.farpoll.com/start), which is a [frame on Farcaster](https://warpcast.notion.site/Farcaster-Frames-4bd47fe97dc74a42a48d3a234636d8c5) that will parse the question and button options from within a cast, and then store the vote results onchain using [this EAS schema](https://base.easscan.org/schema/view/0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde). 
 
