@@ -38,7 +38,7 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
         data: {
             recipient: attest_wallet,
             expirationTime: 0,
-            revocable: true, // Be aware that if your schema is not revocable, this MUST be false
+            revocable: true,
             data: encodedData,
         },
     });

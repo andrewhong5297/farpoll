@@ -12,7 +12,8 @@ const base_url = process.env["IS_PROD"] == 'true' ? 'https://frame-eas-a34243560
 console.log(base_url)
 
 app.get('/', (req, res) => {
-  res.send('Hello casters!')
+  const myurl = `https://linktr.ee/cryptodatabytes`
+  res.redirect(myurl)
 });
 
 app.get('/image', async (req, res) => {
