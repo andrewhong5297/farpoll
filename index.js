@@ -52,7 +52,7 @@ app.post('/poll', async (req, res) => {
   console.log('poll')
   // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode
   // const attest_wallet = "0xFdB1636C17DBC312f5E48625981499a4a179d6f0" //QA testing hardcode
-  // const existing_attestation = false //QA testing hardcode
+  // const existing_attestation = false //QA testing hardcode/
   const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
   
   const exists = await eas_check(cast_hash, attest_wallet)
@@ -67,7 +67,7 @@ app.post('/poll', async (req, res) => {
     <meta name="fc:frame:button:1" content="already voted, show results">
     `
   } else {
-    // user has not voted yet, show poll
+    // user has not voted yet, show poll options
     const results = await parse_cast(cast_hash)
     const buttons = results.options.map((option, index) => ({
       [`fc:frame:button:${index + 1}`]: option
@@ -148,7 +148,7 @@ app.post('/submit', async (req, res) => {
   }
 });
 
-app.post('/results', async (req, res) => {
+app.post('/results', async (req, res) => { 
     console.log('results')
     const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
     // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode for redirects

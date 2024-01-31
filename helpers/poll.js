@@ -11,32 +11,15 @@ import { parse_cast } from "./neynar.js";
 export async function create_image(show_results = false, cast_hash = null) {
   // cast_hash = '0x7065681cfd13c093706f77f34d32fe2c0e87d6c6' //test for parsing
   //get cast from neynar
-  let pollData;
-  let question;
-  try {
-    const results = await parse_cast(cast_hash);
-    // console.log(results)
-    pollData = results.options.map((option, index) => ({
-      text: option,
-      percentOfTotal: 0,
-      votes: 0,
-      key: index
-    }));
-    question = results.question;
-  } catch (e) {
-    pollData = [{
-      text: '- included a "?"',
-      percentOfTotal: 0,
-      votes: 0,
-      key: 1
-    }, {
-      text: '- put options in [a,b,c] format',
-      percentOfTotal: 0,
-      votes: 0,
-      key: 2
-    }];
-    question = "error parsing cast, make sure you:";
-  }
+  const results = await parse_cast(cast_hash);
+  // console.log(results)
+  let pollData = results.options.map((option, index) => ({
+    text: option,
+    percentOfTotal: 0,
+    votes: 0,
+    key: index
+  }));
+  const question = results.question;
   if (cast_hash !== null && show_results === 'true') {
     //get poll data from Dune 
     pollData = await get_poll_data(cast_hash, pollData);
