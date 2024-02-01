@@ -42,7 +42,7 @@ app.get('/start', (req, res) => {
         <meta name="fc:frame:button:1" content="Load Poll">
       </head>
       <body> 
-        <p>Submit your prediction</p>
+        <p>Create your own poll by copy and pasting "https://ask.farpoll.com/start" into a cast, and typing out a question with a '?' and options like [a,b,c].</p>
       </body>
     </html>
   `);
@@ -108,7 +108,8 @@ app.post('/submit', async (req, res) => {
 
     // Hit Once Upon API with txHash and the original POST body from the Frame
     const uri = encodeURIComponent(`${base_url}/results`);
-    const onceUponResponse = await fetch(`https://api.onceupon.gg/v1/transactions/${tx_id}/farcaster-frame?callback=${uri}`, {
+    const button_text = encodeURIComponent("See Poll Results");
+    const onceUponResponse = await fetch(`https://api.onceupon.gg/v1/transactions/${tx_id}/farcaster-frame?callback=${uri}&buttonText=${button_text}`, {
       method: 'POST',
       body: JSON.stringify(req.body)
       });
@@ -139,7 +140,7 @@ app.post('/submit', async (req, res) => {
         </body>
       </html>
       `)
-  }
+  }``
 });
 
 app.post('/results', async (req, res) => { 
