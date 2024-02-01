@@ -14,8 +14,8 @@ export async function parse_cast(cast_hash) {
         question = text.split('?')[0]
         options = text.match(/\[(.*?)\]/)[1].split(',')
     } catch (error) {
-        question = "error parsing cast, make sure you:"
-        options = ["- put options in [a,b,c] format"]
+        question = "error parsing cast, make sure to:"
+        options = ["- write options in [a,b,c]", "- include a question mark '?'"]
     }
 
     console.log("question: " + question)
@@ -38,7 +38,7 @@ export async function parse_action(body) {
     let result;
     let trusted_data;
     console.log(body?.trustedData)
-    if (1===1) { //QA test with hardcoded messageBytes from a real cast
+    if (1===2) { //QA test with hardcoded messageBytes from a real cast
       console.log('local testing is ON')
       trusted_data = '0a61080d108a810118aea0aa2e20018201510a3168747470733a2f2f6672616d652d6561732d6133343234333536303538362e6865726f6b756170702e636f6d2f6261736510031a1a088a8101121427f8122fa7e4fdf22beafce0ff38eead51c644f312143715aa0a65ba847689b82057ebc9ac1e4b7e57361801224016c5969ad511f65c17f2d7462ae3c412a34d8d0dc2fd01bab505704cdf04314f615bf8523558fd98f234d5701e5182c69cedcd9ffb81d75a937ad75da2c38b0b280132204e42acc1786aba2b49619f7edae329009f419128916f5f187f80d35411879bb4'
       result = await client.validateFrameAction(trusted_data);

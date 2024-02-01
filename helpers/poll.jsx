@@ -9,10 +9,10 @@ import { parse_cast } from "./neynar.js"
 
 //this should take a cast hash, then query Dune to get the poll results as a json array. Then displays them.
 export async function create_image(show_results=false, cast_hash=null) {
-    // cast_hash = '0x7065681cfd13c093706f77f34d32fe2c0e87d6c6' //test for parsing
-    //get cast from neynar
+    // cast_hash = '0x7065681cfd13c093706f77f34d32fe2c0e87d6c6' //QA test for parsing
+    
+    // get cast from neynar
     const results = await parse_cast(cast_hash)
-    // console.log(results)
     let pollData = results.options.map((option, index) => ({
         text: option,
         percentOfTotal: 0,
@@ -26,7 +26,7 @@ export async function create_image(show_results=false, cast_hash=null) {
         pollData = await get_poll_data(cast_hash, pollData)
     }
 
-    // console.log(pollData)
+    console.log(pollData)
     const fontPath = join(process.cwd(), 'helpers', 'Roboto-Regular.ttf')
     const fontData = fs.readFileSync(fontPath)
     const svg = await satori(
