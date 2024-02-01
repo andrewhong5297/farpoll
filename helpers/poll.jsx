@@ -46,7 +46,7 @@ export async function create_image(show_results=false, cast_hash=null) {
                 flexDirection: 'column',
                 padding: 20,
             }}>
-                <h2 style={{textAlign: 'center', color: 'lightgray'}}>{question}</h2>
+                <h3 style={{textAlign: 'center', color: 'lightgray'}}>{question}</h3>
                 {
                     pollData.map((opt) => {
                         return (
