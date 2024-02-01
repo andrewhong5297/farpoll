@@ -33,7 +33,7 @@ export async function get_user_wallet(fid) {
     return attest_wallet
 }
 
-export async function get_cast(body) {
+export async function parse_action(body) {
     const client = new NeynarAPIClient(NEYNAR_API_KEY);
     let result;
     let trusted_data;

@@ -3,7 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import { eas_mint, eas_check } from './helpers/eas.js';
-import { parse_cast, get_cast } from './helpers/neynar.js';
+import { parse_cast, parse_action } from './helpers/neynar.js';
 import { create_image } from './helpers/poll.js';
 
 const app = express();
@@ -53,7 +53,7 @@ app.post('/poll', async (req, res) => {
   // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode
   // const attest_wallet = "0xFdB1636C17DBC312f5E48625981499a4a179d6f0" //QA testing hardcode
   // const existing_attestation = false //QA testing hardcode/
-  const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
+  const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
   
   const exists = await eas_check(cast_hash, attest_wallet)
   let display_html;
@@ -99,7 +99,7 @@ app.post('/poll', async (req, res) => {
 
 app.post('/submit', async (req, res) => {
   console.log('submit')
-  const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
+  const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
 
   try {
     //get required EAS data. If they get to this screen, they have already been checked for vote status
@@ -150,7 +150,7 @@ app.post('/submit', async (req, res) => {
 
 app.post('/results', async (req, res) => { 
     console.log('results')
-    const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await get_cast(req.body);
+    const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
     // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode for redirects
 
     res.setHeader('Content-Type', 'text/html');
