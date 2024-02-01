@@ -45,3 +45,15 @@ This is the flow of frames that can be found in endpoints in `index.js`. I use a
 3. if not, give them the `/poll` screen that pulls questions/options from the cast (parses first question mark, and options out of a [a,b,c])
 4. return onceupon frame after confirmation. let them click "see results" to push them to `/results` screen
 5. shows them poll results screen, which has a redirect to the dune dashboard to see voter distribution data.
+
+## Example Cast
+
+```
+Create any onchain poll directly within a cast, show the confirmed transaction in frame, and then take them to a Dune dashboard showing data on voters.
+
+Live now with Farpoll!
+
+How excited are you about frames? [not excited, a little, a lot]
+
+https://ask.farpoll.com/start
+```

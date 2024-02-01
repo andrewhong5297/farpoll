@@ -6,6 +6,7 @@ const NEYNAR_API_KEY = process.env['NEYNAR_API_KEY'];
 export async function parse_cast(cast_hash) {
     const client = new NeynarAPIClient(NEYNAR_API_KEY);
     const cast_data = await client.lookUpCastByHash(cast_hash, 1) 
+    console.log(cast_data)
     const text = cast_data?.result?.cast?.text
 
     let question;

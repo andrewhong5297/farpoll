@@ -3,6 +3,8 @@ import { ethers } from "ethers";
 import { getAddress } from 'viem' //ethers is broken
 import { gql, GraphQLClient } from 'graphql-request';
 
+function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
+
 //@todo: make this offchain EAS and then upload in bulk to dune
 export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data, verifiable=false) {
     //push to EAS either onchain or offchain. docs: https://docs.attest.sh/docs/tutorials/make-an-attestation
@@ -44,9 +46,10 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
         },
     });
 
-    const newAttestationUID = await tx.wait();
-    console.log("New attestation UID:", newAttestationUID);
-    console.log(tx.tx.hash)
+    // const newAttestationUID = await tx.wait();
+    // console.log("New attestation UID:", newAttestationUID);
+    console.log(tx.tx.hash) //try to not await
+    await delay(200); // Wait for 200 milliseconds, to give onceupon some time
     return tx.tx.hash;
 }
 
