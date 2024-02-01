@@ -45,7 +45,7 @@ export async function create_image(show_results = false, cast_hash = null) {
       flexDirection: 'column',
       padding: 20
     }
-  }, /*#__PURE__*/React.createElement("h2", {
+  }, /*#__PURE__*/React.createElement("h3", {
     style: {
       textAlign: 'center',
       color: 'lightgray'
