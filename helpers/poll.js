@@ -24,7 +24,8 @@ export async function create_image(show_results = false, cast_hash = null) {
     //get poll data from Dune 
     pollData = await get_poll_data(cast_hash, pollData);
   }
-  console.log(pollData);
+
+  // console.log(pollData)
   const fontPath = join(process.cwd(), 'helpers', 'Roboto-Regular.ttf');
   const fontData = fs.readFileSync(fontPath);
   const svg = await satori( /*#__PURE__*/React.createElement("div", {

@@ -48,7 +48,7 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
 
     // const newAttestationUID = await tx.wait();
     // console.log("New attestation UID:", newAttestationUID);
-    console.log(tx.tx.hash) //try to not await
+    console.log("attestation sent: ", tx.tx.hash) //try to not await
     await delay(200); // Wait for 200 milliseconds, to give onceupon some time
     return tx.tx.hash;
 }
