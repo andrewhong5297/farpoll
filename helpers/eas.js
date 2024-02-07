@@ -30,35 +30,38 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
 
     const schemaUID = "0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde";
     // const response = await 
-    const response = await axios.post(
-        "https://frame.syndicate.io/api/mint",
-        {
-          frameTrustedData: trusted_data,
-          args: [
-            [
-                schemaUID,
-              [ 
-                  attest_wallet, //recipient
-                  0, //expirationTime
-                  true, //revocable
-                  "0x0000000000000000000000000000000000000000000000000000000000000000", //refUID
-                  encodedData,
-                  0
-              ],
+    try {
+        const response = await axios.post(
+            "https://frame.syndicate.io/api/mint",
+            {
+            frameTrustedData: trusted_data,
+            args: [
+                [
+                    schemaUID,
+                [ 
+                    attest_wallet, //recipient
+                    0, //expirationTime
+                    true, //revocable
+                    "0x0000000000000000000000000000000000000000000000000000000000000000", //refUID
+                    encodedData,
+                    0
+                ],
+                ],
             ],
-          ],
-        },
-        {
-          headers: {
-            "content-type": "application/json",
-            Authorization: `Bearer ${SYNDICATE_API_KEY}`,
-          },
-        }
-      );
-    console.log(response.status, response.data)
-    return response
-    // return { status: 200, data: "ok"}
-    
+            },
+            {
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Bearer ${SYNDICATE_API_KEY}`,
+            },
+            }
+        );
+        console.log(response.status)
+        return response
+    } catch (error) {
+        return { status: 400, data: error}
+    }
+
     // //push to EAS either onchain or offchain. docs: https://docs.attest.sh/docs/tutorials/make-an-attestation
     // const provider = ethers.getDefaultProvider(
     //     "base", {
