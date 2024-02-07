@@ -30,7 +30,7 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
 
     const schemaUID = "0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde";
     // const response = await 
-    axios.post(
+    const response = await axios.post(
         "https://frame.syndicate.io/api/mint",
         {
           frameTrustedData: trusted_data,
@@ -55,9 +55,9 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
           },
         }
       );
-    // console.log(response.status, response.data)
-    // return response
-    return { status: 200, data: "ok"}
+    console.log(response.status, response.data)
+    return response
+    // return { status: 200, data: "ok"}
     
     // //push to EAS either onchain or offchain. docs: https://docs.attest.sh/docs/tutorials/make-an-attestation
     // const provider = ethers.getDefaultProvider(
