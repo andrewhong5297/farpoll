@@ -53,49 +53,54 @@ app.post('/poll', async (req, res) => {
   // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode
   // const attest_wallet = "0xFdB1636C17DBC312f5E48625981499a4a179d6f0" //QA testing hardcode
 
-  const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
-  const exists = await eas_check(cast_hash, attest_wallet)
-  let display_html;
-  // if (false) { //QA hardcode, this will make the attestation fire off again.
-  if (exists.exists) {
-    // user already has an attestation, show results
-    display_html = `
-    <meta property="og:image" content="https://og.onceupon.gg/card/${exists.hash}?max-age=1&datetime=${Date.now()}">
-    <meta name="fc:frame" content="vNext">
-    <meta name="fc:frame:image" content="https://og.onceupon.gg/card/${exists.hash}?max-age=1&datetime=${Date.now()}">
-    <meta name="fc:frame:post_url" content="${base_url}/results?attested=yes">
-    <meta name="fc:frame:button:1" content="you voted, click here show results">
-    `
-  } else {
-    // user has not voted yet, show poll options
-    const results = await parse_cast(cast_hash)
-    // console.log(results) 
-    const buttons = results.options.map((option, index) => ({
-      [`fc:frame:button:${index + 1}`]: option
-    }))
-    display_html = `
-    <meta property="og:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
-    <meta name="fc:frame" content="vNext"> 
-    <meta name="fc:frame:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
-    <meta name="fc:frame:post_url" content="${base_url}/results?attested=no">
-    ${buttons.map(button => Object.entries(button).map(([key, value]) => `<meta name="${key}" content="${value}">`).join('\n')).join('\n')}
-    `
-  }
+  try {
+    const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
+    const exists = await eas_check(cast_hash, attest_wallet)
+    let display_html;
+    // if (false) { //QA hardcode, this will make the attestation fire off again.
+    if (exists.exists) {
+      // user already has an attestation, show results
+      display_html = `
+      <meta property="og:image" content="https://og.onceupon.gg/card/${exists.hash}?max-age=1&datetime=${Date.now()}">
+      <meta name="fc:frame" content="vNext">
+      <meta name="fc:frame:image" content="https://og.onceupon.gg/card/${exists.hash}?max-age=1&datetime=${Date.now()}">
+      <meta name="fc:frame:post_url" content="${base_url}/results?attested=yes">
+      <meta name="fc:frame:button:1" content="you voted, click here show results">
+      `
+    } else {
+      // user has not voted yet, show poll options
+      const results = await parse_cast(cast_hash)
+      // console.log(results) 
+      const buttons = results.options.map((option, index) => ({
+        [`fc:frame:button:${index + 1}`]: option
+      }))
+      display_html = `
+      <meta property="og:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
+      <meta name="fc:frame" content="vNext"> 
+      <meta name="fc:frame:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
+      <meta name="fc:frame:post_url" content="${base_url}/results?attested=no">
+      ${buttons.map(button => Object.entries(button).map(([key, value]) => `<meta name="${key}" content="${value}">`).join('\n')).join('\n')}
+      `
+    }
 
-  res.setHeader('Content-Type', 'text/html');
-  res.status(200).send(`
-    <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Submit a vote</title>
-        <meta property="og:title" content="Submit a vote">
-        ${display_html}
-      </head>
-      <body>
-        <p>Submit a vote</p>
-      </body>
-    </html>
-  `);
+    res.setHeader('Content-Type', 'text/html');
+    res.status(200).send(`
+      <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Submit a vote</title>
+          <meta property="og:title" content="Submit a vote">
+          ${display_html}
+        </head>
+        <body>
+          <p>Submit a vote</p>
+        </body>
+      </html>
+    `);
+  } catch (error) {
+    console.log(error)
+    res.send(400)
+  }
 });
 
 // app.post('/submit', async (req, res) => {
@@ -151,41 +156,36 @@ app.post('/poll', async (req, res) => {
 
 app.post('/results', async (req, res) => { 
     console.log('results')
-    const attested = req.query.attested; 
-    let error = false;
-    let response;
-    const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
-    // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode for redirects
+    try {
+      const attested = req.query.attested; 
+      const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
+      // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode for redirects
 
-    if (attested === 'no') {
-      response = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //add "verifiable=true" if you want to include trustedData in the mint. It's just expensive.
-      if (response.status !== 200) { 
-        error = true;
+      if (attested === 'no') {
+          await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //add "verifiable=true" if you want to include trustedData in the mint. It's just expensive.
       }
-    }
 
-    if (error === false) {
-    res.setHeader('Content-Type', 'text/html');
-    res.status(200).send(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>see results</title>
-            <meta property="og:title" content="see results">
-            <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
-            <meta name="fc:frame" content="vNext">
-            <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
-            <meta name="fc:frame:button:1" content="see data on voter wallets 👉">
-            <meta name="fc:frame:button:1:action" content="post_redirect">
-            <meta name="fc:frame:post_url" content="${base_url}/redirect">
-          </head>
-          <body>
-            <p>see results</p>
-          </body> 
-        </html>`);
-    } else {
+      res.setHeader('Content-Type', 'text/html');
+      res.status(200).send(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>see results</title>
+              <meta property="og:title" content="see results">
+              <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+              <meta name="fc:frame" content="vNext">
+              <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+              <meta name="fc:frame:button:1" content="see data on voter wallets 👉">
+              <meta name="fc:frame:button:1:action" content="post_redirect">
+              <meta name="fc:frame:post_url" content="${base_url}/redirect">
+            </head>
+            <body>
+              <p>see results</p>
+            </body> 
+          </html>`);
+    } catch (error) {
       // Error handling
-      console.error('Error in syndicate:', response.data);
+      console.error('Error in syndicate:', error);
       res.setHeader('Content-Type', 'text/html');
       res.status(200).send(`
         <!DOCTYPE html>

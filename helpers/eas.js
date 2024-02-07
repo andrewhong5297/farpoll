@@ -13,7 +13,6 @@ import axios from "axios";
 export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data, verifiable=false) {
     // Initialize SchemaEncoder with the schema string
     const SYNDICATE_API_KEY = process.env['SYNDICATE_API_KEY'];
-    console.log(SYNDICATE_API_KEY)
 
     cast_hash = cast_hash.startsWith('0x') ? cast_hash.substring(2) : cast_hash; //depending on source, sometimes hash has 0x in it.
     const padded_cast = Buffer.from(cast_hash + '0'.repeat(64 - cast_hash.length), 'hex')
@@ -31,38 +30,33 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
     // console.log(encodedData)
 
     const schemaUID = "0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde";
-    // const response = await 
-    try {
-        const response = await axios.post(
-            "https://frame.syndicate.io/api/mint",
-            {
-            frameTrustedData: trusted_data,
-            args: [
-                [
-                    schemaUID,
-                [ 
-                    attest_wallet, //recipient
-                    0, //expirationTime
-                    true, //revocable
-                    "0x0000000000000000000000000000000000000000000000000000000000000000", //refUID
-                    encodedData,
-                    0
-                ],
-                ],
+    const response = axios.post( //don't await because of slow delays
+        "https://frame.syndicate.io/api/mint",
+        {
+        frameTrustedData: trusted_data,
+        args: [
+            [
+                schemaUID,
+            [ 
+                attest_wallet, //recipient
+                0, //expirationTime
+                true, //revocable
+                "0x0000000000000000000000000000000000000000000000000000000000000000", //refUID
+                encodedData,
+                0
             ],
-            },
-            {
-            headers: {
-                "content-type": "application/json",
-                Authorization: `Bearer ${SYNDICATE_API_KEY}`,
-            },
-            }
-        );
-        console.log(response.status)
-        return response
-    } catch (error) {
-        return { status: 400, data: error}
-    }
+            ],
+        ],
+        },
+        { 
+        headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${SYNDICATE_API_KEY}`,
+        },
+        }
+    );
+    // console.log(response.status)
+    return true
 
     // //push to EAS either onchain or offchain. docs: https://docs.attest.sh/docs/tutorials/make-an-attestation
     // const provider = ethers.getDefaultProvider(
