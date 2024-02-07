@@ -35,9 +35,9 @@ export async function get_poll_data(cast_hash, poll_data) {
         const body = await latest_response.text();
         //if execution is stale, refresh it
         const executionEndedAt = JSON.parse(body).execution_ended_at;
-        const minuteAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+        const minuteAgo = new Date(Date.now() - 3 * 60 * 1000).toISOString();
         if (executionEndedAt < minuteAgo) {
-            throw new Error("Execution ended more than two minutes ago.");
+            throw new Error("Execution ended more than three minutes ago.");
         } else {
             results = JSON.parse(body)?.result?.rows[0].results;
             if (results == null) {

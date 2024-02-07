@@ -50,20 +50,20 @@ app.get('/start', (req, res) => {
 
 app.post('/poll', async (req, res) => {
   console.log('poll')
-  const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode
-  const attest_wallet = "0xFdB1636C17DBC312f5E48625981499a4a179d6f0" //QA testing hardcode
+  // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode
+  // const attest_wallet = "0xFdB1636C17DBC312f5E48625981499a4a179d6f0" //QA testing hardcode
 
-  // const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
-  // const exists = await eas_check(cast_hash, attest_wallet)
+  const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
+  const exists = await eas_check(cast_hash, attest_wallet)
   let display_html;
-  if (false) { //QA hardcode, this will make the attestation fire off again.
-  // if (exists.exists) {
+  // if (false) { //QA hardcode, this will make the attestation fire off again.
+  if (exists.exists) {
     // user already has an attestation, show results
     display_html = `
     <meta property="og:image" content="https://og.onceupon.gg/card/${exists.hash}?max-age=1&datetime=${Date.now()}">
     <meta name="fc:frame" content="vNext">
     <meta name="fc:frame:image" content="https://og.onceupon.gg/card/${exists.hash}?max-age=1&datetime=${Date.now()}">
-    <meta name="fc:frame:post_url" content="${base_url}/results">
+    <meta name="fc:frame:post_url" content="${base_url}/results?attested=yes">
     <meta name="fc:frame:button:1" content="you voted, click here show results">
     `
   } else {
@@ -77,7 +77,7 @@ app.post('/poll', async (req, res) => {
     <meta property="og:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
     <meta name="fc:frame" content="vNext"> 
     <meta name="fc:frame:image" content="${base_url}/image?show_results=false&cast_hash=${cast_hash}">
-    <meta name="fc:frame:post_url" content="${base_url}/submit">
+    <meta name="fc:frame:post_url" content="${base_url}/results?attested=no">
     ${buttons.map(button => Object.entries(button).map(([key, value]) => `<meta name="${key}" content="${value}">`).join('\n')).join('\n')}
     `
   }
@@ -98,61 +98,72 @@ app.post('/poll', async (req, res) => {
   `);
 });
 
-app.post('/submit', async (req, res) => {
-  console.log('submit')
-  const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode
-  const attest_wallet = "0xFdB1636C17DBC312f5E48625981499a4a179d6f0" //QA testing hardcode
-  const button_index = 1 //QA testing hardcode
-  const fid = 0 //QA testing hardcode
-  const trusted_data = "0x010101" //QA testing hardcode
+// app.post('/submit', async (req, res) => {
+//   console.log('submit')
+//   // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode
+//   // const attest_wallet = "0xFdB1636C17DBC312f5E48625981499a4a179d6f0" //QA testing hardcode
+//   // const button_index = 1 //QA testing hardcode
+//   // const fid = 0 //QA testing hardcode
+//   // const trusted_data = "0x010101" //QA testing hardcode
 
-  // const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
-  try {
-    const tx_id = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //add "verifiable=true" if you want to include trustedData in the mint. It's just expensive.
-    // const tx_id = '0x5c06b77273988a2ad5177307dded64dddf41be2173178e47b45893dc334e985f' //QA testing hardcode for onceupon, if you don't want to fire off an attestation
+//   const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
+//   try {
+//     const tx_id = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //add "verifiable=true" if you want to include trustedData in the mint. It's just expensive.
+//     // const tx_id = '0x5c06b77273988a2ad5177307dded64dddf41be2173178e47b45893dc334e985f' //QA testing hardcode for onceupon, if you don't want to fire off an attestation
 
+    // //bring this back later once tx hash get be consistently acquired
     // Hit Once Upon API with txHash and the original POST body from the Frame
-    console.log("call onceupon")
-    const uri = encodeURIComponent(`${base_url}/results`);
-    const button_text = encodeURIComponent("See Poll Results");
-    const onceUponResponse = await fetch(`https://api.onceupon.gg/v1/transactions/${tx_id}/farcaster-frame?callback=${uri}&buttonText=${button_text}&delay=0`, {
-      method: 'POST',
-      body: JSON.stringify(req.body)
-      });
+    // console.log("call onceupon")
+    // const uri = encodeURIComponent(`${base_url}/results`);
+    // const button_text = encodeURIComponent("See Poll Results");
+    // const onceUponResponse = await fetch(`https://api.onceupon.gg/v1/transactions/${tx_id}/farcaster-frame?callback=${uri}&buttonText=${button_text}&delay=0`, {
+    //   method: 'POST',
+    //   body: JSON.stringify(req.body)
+    //   });
 
-    // Assuming the second API returns HTML response
-    const htmlResponse = await onceUponResponse.text();
-    res.setHeader('Content-Type', 'text/html');
-    res.status(200).send(htmlResponse);
-  } catch (error) {
-      // Error handling
-      console.error('Error in postHandler:', error);
-      res.setHeader('Content-Type', 'text/html');
-      res.status(200).send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>vote failed</title>
-          <meta property="og:title" content="vote failed">
-          <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
-          <meta name="fc:frame" content="vNext">
-          <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
-          <meta name="fc:frame:post_url" content="${base_url}/poll">
-          <meta name="fc:frame:button:1" content="failed, click to try again">
-        </head>
-        <body> 
-          <p>vote failed</p>
-        </body>
-      </html>
-      `)
-  }``
-});
+//     // // Assuming the second API returns HTML response
+//     // const htmlResponse = await onceUponResponse.text();
+//     // res.setHeader('Content-Type', 'text/html');
+//     // res.status(200).send(htmlResponse);
+//   } catch (error) {
+//       // Error handling
+//       console.error('Error in postHandler:', error);
+//       res.setHeader('Content-Type', 'text/html');
+//       res.status(200).send(`
+//         <!DOCTYPE html>
+//         <html>
+//         <head>
+//           <title>vote failed</title>
+//           <meta property="og:title" content="vote failed">
+//           <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+//           <meta name="fc:frame" content="vNext">
+//           <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+//           <meta name="fc:frame:post_url" content="${base_url}/poll">
+//           <meta name="fc:frame:button:1" content="failed, click to try again">
+//         </head>
+//         <body> 
+//           <p>vote failed</p>
+//         </body>
+//       </html>
+//       `)
+//   }``
+// });
 
 app.post('/results', async (req, res) => { 
     console.log('results')
-    // const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
-    const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode for redirects
+    const attested = req.query.attested; 
+    let error = false;
+    const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
+    // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode for redirects
 
+    if (attested === 'no') {
+    const response = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //add "verifiable=true" if you want to include trustedData in the mint. It's just expensive.
+      if (response.status !== 200) { 
+        error = true;
+      }
+    }
+
+    if (!error) {
     res.setHeader('Content-Type', 'text/html');
     res.status(200).send(`
         <!DOCTYPE html>
@@ -171,6 +182,28 @@ app.post('/results', async (req, res) => {
             <p>see results</p>
           </body> 
         </html>`);
+    } else {
+      // Error handling
+      console.error('Error in syndicate:', response.data);
+      res.setHeader('Content-Type', 'text/html');
+      res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>vote failed</title>
+          <meta property="og:title" content="vote failed">
+          <meta property="og:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+          <meta name="fc:frame" content="vNext">
+          <meta name="fc:frame:image" content="${base_url}/image?show_results=true&cast_hash=${cast_hash}">
+          <meta name="fc:frame:post_url" content="${base_url}/poll">
+          <meta name="fc:frame:button:1" content="failed, click to try again">
+        </head>
+        <body> 
+          <p>vote failed</p>
+        </body>
+      </html>
+      `)
+    }
 });
 
 app.post('/redirect', async (req, res) => {

@@ -1,21 +1,26 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
 import { ethers } from "ethers";
 import { getAddress } from 'viem' //ethers is broken
 import { gql, GraphQLClient } from 'graphql-request';
+import axios from "axios";
 
-function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
+const SYNDICATE_API_KEY = process.env['SYNDICATE_API_KEY'];
+// function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
 
 //@todo: make this offchain EAS and then upload in bulk to dune
 export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data, verifiable=false) {
-    //push to EAS either onchain or offchain. docs: https://docs.attest.sh/docs/tutorials/make-an-attestation
-    const provider = ethers.getDefaultProvider(
-        "base", {
-            alchemy: process.env['ALCHEMY_KEY']
-        }
-    );
-    const signer = new ethers.Wallet(process.env['PRIVATE_KEY'], provider);
-    const eas = new EAS("0x4200000000000000000000000000000000000021"); //https://docs.attest.sh/docs/quick--start/contracts#base
-    eas.connect(signer);
+    // //push to EAS either onchain or offchain. docs: https://docs.attest.sh/docs/tutorials/make-an-attestation
+    // const provider = ethers.getDefaultProvider(
+    //     "base", {
+    //         alchemy: process.env['ALCHEMY_KEY']
+    //     }
+    // );
+    // const signer = new ethers.Wallet(process.env['PRIVATE_KEY'], provider);
+    // const eas = new EAS("0x4200000000000000000000000000000000000021"); //https://docs.attest.sh/docs/quick--start/contracts#base
+    // eas.connect(signer);
 
     // Initialize SchemaEncoder with the schema string
     cast_hash = cast_hash.startsWith('0x') ? cast_hash.substring(2) : cast_hash; //depending on source, sometimes hash has 0x in it.
@@ -36,21 +41,48 @@ export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trus
     console.log(encodedData)
     const schemaUID = "0x6e333418327e1082bc2c5366560c703b447901a4b8d4ca9c754e9a8460eedbde";
 
-    const tx = await eas.attest({
-        schema: schemaUID,
-        data: {
-            recipient: attest_wallet,
-            expirationTime: 0,
-            revocable: true,
-            data: encodedData,
+    const response = await axios.post(
+        "https://frame.syndicate.io/api/mint",
+        {
+          frameTrustedData: trusted_data,
+          args: [
+            [
+                schemaUID,
+              [ 
+                  attest_wallet, //recipient
+                  0, //expirationTime
+                  true, //revocable
+                  "0x0000000000000000000000000000000000000000000000000000000000000000", //refUID
+                  encodedData,
+                  0
+              ],
+            ],
+          ],
         },
-    });
+        {
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${SYNDICATE_API_KEY}`,
+          },
+        }
+      );
+    console.log(response.status, response.data)
+    return response
 
+    // const tx = await eas.attest({
+    //     schema: schemaUID,
+    //     data: {
+    //         recipient: attest_wallet,
+    //         expirationTime: 0,
+    //         revocable: true,
+    //         data: encodedData,
+    //     },
+    // });
     // const newAttestationUID = await tx.wait();
     // console.log("New attestation UID:", newAttestationUID);
-    console.log("attestation sent: ", tx.tx.hash) //try to not await
-    await delay(200); // Wait for 200 milliseconds, to give onceupon some time
-    return tx.tx.hash;
+    // console.log("attestation sent: ", tx.tx.hash) //try to not await
+    // await delay(200); // Wait for 200 milliseconds, to give onceupon some time
+    // return tx.tx.hash;
 }
 
 export async function eas_check(cast_hash, attest_wallet) {
