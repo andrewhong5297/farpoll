@@ -189,7 +189,7 @@ app.post('/results', async (req, res) => {
       res.setHeader('Content-Type', 'text/html');
       res.status(200).send(`
         <!DOCTYPE html>
-        <html>
+        <html> 
         <head>
           <title>vote failed</title>
           <meta property="og:title" content="vote failed">
