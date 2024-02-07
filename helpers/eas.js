@@ -8,6 +8,7 @@ import { gql, GraphQLClient } from 'graphql-request';
 import axios from "axios";
 
 const SYNDICATE_API_KEY = process.env['SYNDICATE_API_KEY'];
+console.log(SYNDICATE_API_KEY)
 // function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
 
 //@todo: make this offchain EAS and then upload in bulk to dune

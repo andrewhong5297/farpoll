@@ -48,7 +48,7 @@ export async function parse_action(body) {
       result = await client.validateFrameAction(trusted_data);
     }
 
-    console.log(result)
+    // console.log(result)
     if (result.valid) {
         const fid = result.action.interactor.fid
         const cast_hash = result.action.cast.hash.toString('hex');
