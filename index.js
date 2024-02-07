@@ -153,17 +153,18 @@ app.post('/results', async (req, res) => {
     console.log('results')
     const attested = req.query.attested; 
     let error = false;
+    let response;
     const { cast_hash, button_index, trusted_data, fid, attest_wallet } = await parse_action(req.body);
     // const cast_hash = "0x27f8122fa7e4fdf22beafce0ff38eead51c644f3" //QA testing hardcode for redirects
 
     if (attested === 'no') {
-    const response = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //add "verifiable=true" if you want to include trustedData in the mint. It's just expensive.
+      response = await eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data); //add "verifiable=true" if you want to include trustedData in the mint. It's just expensive.
       if (response.status !== 200) { 
         error = true;
       }
     }
 
-    if (!error) {
+    if (error === false) {
     res.setHeader('Content-Type', 'text/html');
     res.status(200).send(`
         <!DOCTYPE html>
