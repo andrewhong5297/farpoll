@@ -185,7 +185,7 @@ app.post('/results', async (req, res) => {
           </html>`);
     } catch (error) {
       // Error handling
-      console.error('Error in syndicate:', error);
+      console.error('Error in syndicate');
       res.setHeader('Content-Type', 'text/html');
       res.status(200).send(`
         <!DOCTYPE html>
