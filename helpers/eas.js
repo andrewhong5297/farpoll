@@ -7,13 +7,14 @@ import { getAddress } from 'viem' //ethers is broken
 import { gql, GraphQLClient } from 'graphql-request';
 import axios from "axios";
 
-const SYNDICATE_API_KEY = process.env['SYNDICATE_API_KEY'];
-console.log(SYNDICATE_API_KEY)
 // function delay(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
 
 //@todo: make this offchain EAS and then upload in bulk to dune
 export async function eas_mint(cast_hash, fid, attest_wallet, button_index, trusted_data, verifiable=false) {
     // Initialize SchemaEncoder with the schema string
+    const SYNDICATE_API_KEY = process.env['SYNDICATE_API_KEY'];
+    console.log(SYNDICATE_API_KEY)
+
     cast_hash = cast_hash.startsWith('0x') ? cast_hash.substring(2) : cast_hash; //depending on source, sometimes hash has 0x in it.
     const padded_cast = Buffer.from(cast_hash + '0'.repeat(64 - cast_hash.length), 'hex')
     const schemaEncoder = new SchemaEncoder("bytes32 cast_hash, uint112 fid, uint8 button_index, bytes trusted_data");
