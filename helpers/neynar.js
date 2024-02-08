@@ -12,7 +12,7 @@ export async function parse_cast(cast_hash) {
     let question;
     let options;
     try {
-        question = text.split('?')[0]
+        question = text.split('?')[0] + '?'
         options = text.match(/\[(.*?)\]/)[1].split(',')
     } catch (error) {
         question = "error parsing cast, make sure to:"
